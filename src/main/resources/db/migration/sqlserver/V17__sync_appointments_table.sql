@@ -1,0 +1,12 @@
+-- Add missing columns to appointments table (allowing nulls initially)
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='appointments' AND COLUMN_NAME='appointment_type')
+    ALTER TABLE appointments ADD appointment_type NVARCHAR(40) DEFAULT 'PROPERTY_VISIT';
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='appointments' AND COLUMN_NAME='starts_at')
+    ALTER TABLE appointments ADD starts_at DATETIME2;
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='appointments' AND COLUMN_NAME='ends_at')
+    ALTER TABLE appointments ADD ends_at DATETIME2;
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='appointments' AND COLUMN_NAME='location')
+    ALTER TABLE appointments ADD location NVARCHAR(255);

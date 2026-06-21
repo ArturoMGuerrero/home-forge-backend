@@ -1,0 +1,45 @@
+# Build output
+target/
+
+# User uploads
+uploads/
+
+# H2 Database
+data/
+
+# Logs
+*.log
+backend-*.log
+startup*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+*.old
+*.disabled
+
+# SQL scripts (except migrations)
+/*.sql
+
+# Test files
+TestConnection.java
+TestConnection.class
+
+# Scripts temporales
+start-*.cmd
+start-*.sh
+habilitar-*.cmd
+reiniciar-*.cmd
+configurar-*.md
+HABILITAR_*.md
+
+# Python temp
+*.pyc
+__pycache__/
+*.py
+
+# IDE
+.idea/
+.vscode/
+*.iml

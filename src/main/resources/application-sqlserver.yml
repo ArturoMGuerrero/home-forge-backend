@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: 'jdbc:sqlserver://localhost\SQLEXPRESS;databaseName=test;encrypt=false;trustServerCertificate=true'
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    username: casaflow
+    password: 'P@ssw0rd!2024#Complex'
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+        format_sql: true
+    show-sql: true
+  flyway:
+    enabled: false

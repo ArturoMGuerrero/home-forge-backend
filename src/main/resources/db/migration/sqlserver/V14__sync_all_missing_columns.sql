@@ -1,0 +1,39 @@
+-- Add missing columns to leads table
+ALTER TABLE leads ADD assigned_to UNIQUEIDENTIFIER;
+ALTER TABLE leads ADD bathrooms_min INT;
+ALTER TABLE leads ADD bedrooms_min INT;
+ALTER TABLE leads ADD budget_min DECIMAL(15,2);
+ALTER TABLE leads ADD city NVARCHAR(120);
+ALTER TABLE leads ADD country_code CHAR(2);
+ALTER TABLE leads ADD financing_type NVARCHAR(50);
+ALTER TABLE leads ADD listing_type NVARCHAR(50);
+ALTER TABLE leads ADD next_follow_up_at DATETIME2;
+ALTER TABLE leads ADD notes NVARCHAR(MAX);
+ALTER TABLE leads ADD priority NVARCHAR(20);
+ALTER TABLE leads ADD property_type NVARCHAR(50);
+ALTER TABLE leads ADD state_code NVARCHAR(10);
+
+-- Add missing columns to properties table
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='properties' AND COLUMN_NAME='listing_type')
+    ALTER TABLE properties ADD listing_type NVARCHAR(50);
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='properties' AND COLUMN_NAME='property_type')
+    ALTER TABLE properties ADD property_type NVARCHAR(50);
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='properties' AND COLUMN_NAME='city')
+    ALTER TABLE properties ADD city NVARCHAR(120);
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='properties' AND COLUMN_NAME='state_code')
+    ALTER TABLE properties ADD state_code NVARCHAR(10);
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='properties' AND COLUMN_NAME='country_code')
+    ALTER TABLE properties ADD country_code CHAR(2);
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='properties' AND COLUMN_NAME='postal_code')
+    ALTER TABLE properties ADD postal_code NVARCHAR(20);
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='properties' AND COLUMN_NAME='latitude')
+    ALTER TABLE properties ADD latitude DECIMAL(10,8);
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='properties' AND COLUMN_NAME='longitude')
+    ALTER TABLE properties ADD longitude DECIMAL(11,8);

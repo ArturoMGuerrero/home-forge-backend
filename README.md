@@ -1,0 +1,302 @@
+# HomeForge - Backend API
+
+API REST para HomeForge, un CRM para constructoras, desarrolladores inmobiliarios y equipos comerciales de vivienda.
+
+## 🚀 Tecnologías
+
+- **Framework**: Spring Boot 3.3.5
+- **Lenguaje**: Java 21
+- **Base de datos**: PostgreSQL, H2 (desarrollo) o SQL Server
+- **ORM**: Spring Data JPA + Hibernate
+- **Migraciones**: Flyway
+- **Build**: Maven
+
+## 📋 Requisitos
+
+- Java 21 o superior ([Descargar Adoptium JDK](https://adoptium.net/))
+- Maven (incluido como wrapper - `mvnw`)
+- Base de datos (elige una):
+  - H2 (incluida - recomendada para desarrollo)
+  - PostgreSQL 14+ (vía Docker o instalación local)
+  - SQL Server Express o superior
+
+## 🔧 Configuración Inicial
+
+### 1. Clonar el repositorio
+
+```bash
+git clone <tu-repositorio-backend>
+cd HomeForge-backend
+```
+
+### 2. Configurar variables de entorno
+
+Copia el archivo de ejemplo:
+
+```bash
+cp .env.example .env
+```
+
+Edita `.env` según tus necesidades:
+
+```bash
+# Puerto del servidor
+SERVER_PORT=8080
+
+# CORS - Agrega la URL de tu frontend
+CORS_ALLOWED_ORIGINS=http://localhost:5174
+
+# Directorio para archivos subidos
+UPLOADS_DIRECTORY=uploads
+```
+
+## 🚀 Iniciar el Proyecto
+
+### Opción 1: H2 Database (Desarrollo rápido)
+
+```bash
+# Windows
+start-h2.cmd
+
+# Linux/Mac/Git Bash
+./start-h2.sh
+```
+
+**Consola H2**: http://localhost:8080/h2-console
+
+- JDBC URL: `jdbc:h2:file:./data/casaflow`
+- Usuario: `sa`
+- Password: (vacío)
+
+### Opción 2: SQL Server
+
+```bash
+# Windows
+start-sqlserver.cmd
+
+# Linux/Mac/Git Bash
+./start-sqlserver.sh
+```
+
+**Configuración**: Edita `src/main/resources/application-sqlserver.yml` si necesitas cambiar la conexión.
+
+Ver guía completa: [SQL_SERVER_SETUP.md](../HomeForge/SQL_SERVER_SETUP.md)
+
+### Opción 3: PostgreSQL (via Docker)
+
+```bash
+# Iniciar PostgreSQL
+docker-compose up -d
+
+# Iniciar backend
+mvnw spring-boot:run
+```
+
+### Opción 4: Ejecutar manualmente con Maven
+
+```bash
+# H2
+mvnw spring-boot:run -Dspring-boot.run.profiles=h2
+
+# SQL Server
+mvnw spring-boot:run -Dspring-boot.run.profiles=sqlserver
+
+# PostgreSQL (default)
+mvnw spring-boot:run
+```
+
+## 📡 API Endpoints
+
+Una vez iniciado, el backend estará disponible en: **http://localhost:8080**
+
+### Principales endpoints:
+
+- `GET /api/properties` - Listar propiedades
+- `POST /api/properties` - Crear propiedad
+- `GET /api/leads` - Listar prospectos
+- `POST /api/leads` - Crear prospecto
+- `GET /api/companies` - Listar empresas
+- Ver más en la documentación del código fuente
+
+### Health Check
+
+```bash
+curl http://localhost:8080/actuator/health
+```
+
+## 🗄️ Base de Datos
+
+### Migraciones
+
+Las migraciones se ejecutan automáticamente con Flyway al iniciar la aplicación.
+
+Ubicación:
+- PostgreSQL: `src/main/resources/db/migration/`
+- H2: `src/main/resources/db/migration/h2/`
+- SQL Server: `src/main/resources/db/migration/sqlserver/`
+
+### Tablas principales
+
+- `companies` - Empresas (multi-tenant)
+- `users` - Usuarios del sistema
+- `properties` - Inventario de propiedades
+- `leads` - Prospectos/clientes potenciales
+- `developments` - Desarrollos inmobiliarios
+- `tasks` - Tareas y seguimiento
+- `documents` - Archivos adjuntos
+- `subscription_plans` - Planes de suscripción
+
+## 🧪 Tests
+
+```bash
+# Ejecutar todos los tests
+mvnw test
+
+# Ejecutar tests con reporte de cobertura
+mvnw test jacoco:report
+```
+
+Reporte de cobertura: `target/site/jacoco/index.html`
+
+## 📦 Build
+
+### Crear JAR ejecutable
+
+```bash
+mvnw clean package -DskipTests
+```
+
+El JAR se generará en: `target/casaflow-backend-0.1.0.jar`
+
+### Ejecutar JAR
+
+```bash
+java -jar target/casaflow-backend-0.1.0.jar
+```
+
+## 🔐 Autenticación
+
+El sistema incluye autenticación básica con:
+
+- Registro de usuarios
+- Login con email y password
+- Hashing de contraseñas con BCrypt
+- Multi-tenant por `company_id`
+
+## 🌍 CORS
+
+Configurado en `.env` con la variable `CORS_ALLOWED_ORIGINS`.
+
+Por defecto permite:
+- http://localhost:5174
+- http://127.0.0.1:5174
+
+Agrega más orígenes separados por coma si es necesario.
+
+## 📁 Estructura del Proyecto
+
+```
+HomeForge-backend/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/casaflow/
+│   │   │       ├── controller/    # REST Controllers
+│   │   │       ├── service/       # Lógica de negocio
+│   │   │       ├── repository/    # JPA Repositories
+│   │   │       ├── model/         # Entidades JPA
+│   │   │       ├── dto/           # Data Transfer Objects
+│   │   │       └── config/        # Configuración
+│   │   └── resources/
+│   │       ├── application.yml
+│   │       ├── application-h2.yml
+│   │       ├── application-sqlserver.yml
+│   │       └── db/migration/      # Migraciones Flyway
+│   └── test/                      # Tests
+├── pom.xml                        # Dependencias Maven
+├── .env                           # Variables de entorno
+└── README.md
+```
+
+## 🛠️ Comandos Útiles
+
+```bash
+# Limpiar proyecto
+mvnw clean
+
+# Compilar sin tests
+mvnw clean install -DskipTests
+
+# Ver dependencias
+mvnw dependency:tree
+
+# Actualizar wrapper de Maven
+mvnw wrapper:wrapper
+
+# Ejecutar con perfil específico
+mvnw spring-boot:run -Dspring-boot.run.profiles=h2
+```
+
+## 🔧 Configuración Avanzada
+
+### Cambiar puerto
+
+Edita `.env`:
+```bash
+SERVER_PORT=8081
+```
+
+### Variables de entorno disponibles
+
+- `SERVER_PORT` - Puerto del servidor (default: 8080)
+- `CORS_ALLOWED_ORIGINS` - Orígenes CORS permitidos
+- `UPLOADS_DIRECTORY` - Directorio para archivos subidos
+- `DB_URL` - URL de base de datos (para PostgreSQL)
+- `DB_USERNAME` - Usuario de BD (para PostgreSQL/SQL Server)
+- `DB_PASSWORD` - Contraseña de BD (para PostgreSQL/SQL Server)
+
+## 🐳 Docker (Opcional)
+
+Para PostgreSQL local:
+
+```bash
+# Iniciar
+docker-compose up -d
+
+# Detener
+docker-compose down
+
+# Ver logs
+docker-compose logs -f
+```
+
+## 📚 Documentación Adicional
+
+- [Configuración SQL Server](../HomeForge/SQL_SERVER_SETUP.md)
+- [Comandos Rápidos](../HomeForge/COMANDOS_RAPIDOS.md)
+- [Cambios Realizados](../HomeForge/CAMBIOS_REALIZADOS.md)
+
+## 🤝 Frontend
+
+Este backend está diseñado para trabajar con el frontend de HomeForge:
+
+- Repositorio Frontend: `HomeForge-frontend`
+- URL por defecto: http://localhost:5174
+
+Asegúrate de configurar `CORS_ALLOWED_ORIGINS` con la URL del frontend.
+
+## 📝 Licencia
+
+Proyecto privado - Todos los derechos reservados
+
+## 🆘 Soporte
+
+Para problemas o preguntas:
+
+1. Revisa la documentación
+2. Verifica los logs en consola
+3. Consulta los archivos de configuración
+
+---
+
+**Desarrollado con ☕ y Spring Boot**
