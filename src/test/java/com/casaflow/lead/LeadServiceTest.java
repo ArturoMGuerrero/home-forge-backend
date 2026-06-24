@@ -6,6 +6,7 @@ import com.casaflow.lead.domain.LeadActivityType;
 import com.casaflow.lead.repository.LeadRepository;
 import com.casaflow.lead.repository.LeadActivityRepository;
 import com.casaflow.lead.service.LeadService;
+import com.casaflow.subscription.SubscriptionValidator;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import java.util.UUID;
@@ -17,7 +18,8 @@ class LeadServiceTest {
  @Test void createsLead() {
    LeadRepository repo = Mockito.mock(LeadRepository.class);
    LeadActivityRepository activityRepository = Mockito.mock(LeadActivityRepository.class);
-   LeadService service = new LeadService(repo, activityRepository);
+   SubscriptionValidator subscriptionValidator = Mockito.mock(SubscriptionValidator.class);
+   LeadService service = new LeadService(repo, activityRepository, subscriptionValidator);
    service.create(new CreateLeadRequest(UUID.randomUUID(), "John", "Smith", "john@test.com", "+19155551234", "SALE", null, "USD", "El Paso"));
    Mockito.verify(repo).save(any());
  }
@@ -31,7 +33,8 @@ class LeadServiceTest {
    Instant nextFollowUp = Instant.now().plusSeconds(86400);
    Mockito.when(repo.findByIdAndCompanyIdAndDeletedAtIsNull(leadId, companyId)).thenReturn(Optional.of(lead));
 
-   new LeadService(repo, activityRepository).addActivity(leadId, new CreateLeadActivityRequest(
+   SubscriptionValidator validator = Mockito.mock(SubscriptionValidator.class);
+   new LeadService(repo, activityRepository, validator).addActivity(leadId, new CreateLeadActivityRequest(
      companyId, LeadActivityType.CALL, "Solicitó opciones de tres recámaras.", null, nextFollowUp
    ));
 
@@ -46,7 +49,8 @@ class LeadServiceTest {
    UUID leadId = UUID.randomUUID();
    Mockito.when(repo.findByIdAndCompanyIdAndDeletedAtIsNull(leadId, companyId)).thenReturn(Optional.empty());
 
-   LeadService service = new LeadService(repo, activityRepository);
+   SubscriptionValidator subscriptionValidator = Mockito.mock(SubscriptionValidator.class);
+   LeadService service = new LeadService(repo, activityRepository, subscriptionValidator);
 
    assertThrows(IllegalArgumentException.class, () -> service.addActivity(leadId, new CreateLeadActivityRequest(
      companyId, LeadActivityType.NOTE, "Seguimiento", null, null

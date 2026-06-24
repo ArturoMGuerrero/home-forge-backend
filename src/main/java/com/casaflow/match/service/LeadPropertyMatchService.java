@@ -8,6 +8,7 @@ import com.casaflow.match.dto.MatchResponse;
 import com.casaflow.match.repository.LeadPropertyMatchRepository;
 import com.casaflow.property.domain.Property;
 import com.casaflow.property.repository.PropertyRepository;
+import com.casaflow.subscription.SubscriptionValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,11 +20,13 @@ public class LeadPropertyMatchService {
     private final LeadPropertyMatchRepository repository;
     private final LeadRepository leadRepository;
     private final PropertyRepository propertyRepository;
+    private final SubscriptionValidator subscriptionValidator;
 
-    public LeadPropertyMatchService(LeadPropertyMatchRepository repository, LeadRepository leadRepository, PropertyRepository propertyRepository) {
+    public LeadPropertyMatchService(LeadPropertyMatchRepository repository, LeadRepository leadRepository, PropertyRepository propertyRepository, SubscriptionValidator subscriptionValidator) {
         this.repository = repository;
         this.leadRepository = leadRepository;
         this.propertyRepository = propertyRepository;
+        this.subscriptionValidator = subscriptionValidator;
     }
 
     public List<MatchResponse> list(UUID companyId) {
@@ -33,6 +36,7 @@ public class LeadPropertyMatchService {
     }
 
     public MatchResponse create(MatchRequest request) {
+        subscriptionValidator.validateActiveSubscription(request.companyId(), "crear nuevas asignaciones de propiedades");
         if (repository.existsByCompanyIdAndLeadIdAndPropertyIdAndDeletedAtIsNull(request.companyId(), request.leadId(), request.propertyId())) {
             throw new IllegalArgumentException("Esta propiedad ya está asignada al prospecto.");
         }

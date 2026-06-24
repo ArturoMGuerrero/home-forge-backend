@@ -10,6 +10,8 @@ API REST para HomeForge, un CRM para constructoras, desarrolladores inmobiliario
 - **ORM**: Spring Data JPA + Hibernate
 - **Migraciones**: Flyway
 - **Build**: Maven
+- **Pagos**: MercadoPago SDK
+- **Suscripciones**: Sistema integrado con renovación automática
 
 ## 📋 Requisitos
 
@@ -48,6 +50,10 @@ CORS_ALLOWED_ORIGINS=http://localhost:5174
 
 # Directorio para archivos subidos
 UPLOADS_DIRECTORY=uploads
+
+# MercadoPago (IMPORTANTE: Usa credenciales de prueba para desarrollo)
+MERCADOPAGO_ACCESS_TOKEN=tu_access_token_aqui
+MERCADOPAGO_PUBLIC_KEY=tu_public_key_aqui
 ```
 
 ## 🚀 Iniciar el Proyecto
@@ -111,12 +117,31 @@ Una vez iniciado, el backend estará disponible en: **http://localhost:8080**
 
 ### Principales endpoints:
 
+#### Propiedades
 - `GET /api/properties` - Listar propiedades
 - `POST /api/properties` - Crear propiedad
+
+#### Prospectos (Leads)
 - `GET /api/leads` - Listar prospectos
 - `POST /api/leads` - Crear prospecto
+- `GET /api/leads/{id}/activities` - Ver actividades de un prospecto
+
+#### Empresas
 - `GET /api/companies` - Listar empresas
-- Ver más en la documentación del código fuente
+- `GET /api/companies/{id}` - Obtener empresa por ID
+
+#### Suscripciones
+- `GET /api/subscriptions` - Listar planes de suscripción
+- `POST /api/subscriptions/subscribe` - Crear suscripción
+- `PUT /api/subscriptions/{id}/renew` - Renovar suscripción
+
+#### Pagos (MercadoPago)
+- `POST /api/payments/create-preference` - Crear preferencia de pago
+- `POST /api/payments/webhook` - Webhook de notificaciones
+- `GET /api/payments/status/{paymentId}` - Consultar estado de pago
+
+#### Dashboard
+- `GET /api/dashboard/metrics` - Métricas generales del sistema
 
 ### Health Check
 
@@ -141,10 +166,14 @@ Ubicación:
 - `users` - Usuarios del sistema
 - `properties` - Inventario de propiedades
 - `leads` - Prospectos/clientes potenciales
+- `lead_activities` - Seguimiento de actividades de prospectos
 - `developments` - Desarrollos inmobiliarios
 - `tasks` - Tareas y seguimiento
 - `documents` - Archivos adjuntos
-- `subscription_plans` - Planes de suscripción
+- `subscription_plans` - Planes de suscripción (Trial, Básico, Profesional, Empresarial)
+- `subscriptions` - Suscripciones activas de empresas
+- `payments` - Registro de pagos procesados
+- `property_lead_match` - Matching entre propiedades y prospectos
 
 ## 🧪 Tests
 
@@ -182,6 +211,48 @@ El sistema incluye autenticación básica con:
 - Login con email y password
 - Hashing de contraseñas con BCrypt
 - Multi-tenant por `company_id`
+
+## 💳 Sistema de Suscripciones y Pagos
+
+### Planes Disponibles
+
+1. **Trial (Prueba)** - 14 días gratis
+   - 10 propiedades máximo
+   - 20 prospectos máximo
+   - Funcionalidades básicas
+
+2. **Básico** - $299 MXN/mes
+   - 50 propiedades
+   - 100 prospectos
+   - Soporte por email
+
+3. **Profesional** - $599 MXN/mes
+   - 200 propiedades
+   - 500 prospectos
+   - Soporte prioritario
+   - Reportes avanzados
+
+4. **Empresarial** - $999 MXN/mes
+   - Propiedades ilimitadas
+   - Prospectos ilimitados
+   - Soporte 24/7
+   - API access
+   - Dashboard personalizado
+
+### Integración con MercadoPago
+
+- Pagos procesados mediante MercadoPago SDK
+- Webhooks para actualización automática de suscripciones
+- Soporte para pagos recurrentes
+- Validación automática de límites según plan
+
+### Renovación Automática
+
+El sistema incluye un scheduler que:
+- Verifica suscripciones próximas a vencer
+- Envía notificaciones de renovación
+- Marca como expiradas las suscripciones vencidas
+- Se ejecuta diariamente a las 00:00
 
 ## 🌍 CORS
 
@@ -254,6 +325,8 @@ SERVER_PORT=8081
 - `DB_URL` - URL de base de datos (para PostgreSQL)
 - `DB_USERNAME` - Usuario de BD (para PostgreSQL/SQL Server)
 - `DB_PASSWORD` - Contraseña de BD (para PostgreSQL/SQL Server)
+- `MERCADOPAGO_ACCESS_TOKEN` - Access Token de MercadoPago (prueba o producción)
+- `MERCADOPAGO_PUBLIC_KEY` - Public Key de MercadoPago
 
 ## 🐳 Docker (Opcional)
 

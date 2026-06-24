@@ -6,6 +6,7 @@ import com.casaflow.lead.dto.UpdateLeadRequest;
 import com.casaflow.lead.domain.LeadActivity;
 import com.casaflow.lead.repository.LeadActivityRepository;
 import com.casaflow.lead.repository.LeadRepository;
+import com.casaflow.subscription.SubscriptionValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
@@ -14,8 +15,10 @@ import java.util.*;
 public class LeadService {
   private final LeadRepository repo;
   private final LeadActivityRepository activityRepository;
-  public LeadService(LeadRepository repo, LeadActivityRepository activityRepository){this.repo=repo; this.activityRepository=activityRepository;}
+  private final SubscriptionValidator subscriptionValidator;
+  public LeadService(LeadRepository repo, LeadActivityRepository activityRepository, SubscriptionValidator subscriptionValidator){this.repo=repo; this.activityRepository=activityRepository; this.subscriptionValidator=subscriptionValidator;}
   public Lead create(CreateLeadRequest r){
+    subscriptionValidator.validateActiveSubscription(r.companyId(), "crear nuevos prospectos");
     return repo.save(new Lead(
       r.companyId(), clean(r.firstName()), clean(r.lastName()), clean(r.email()), clean(r.phoneE164()),
       normalizeListingType(r.listingType()), r.budgetMax(), clean(r.currencyCode()), clean(r.city())
@@ -53,6 +56,13 @@ public class LeadService {
       r.companyId(), leadId, r.activityType(), r.notes().trim(),
       r.occurredAt() == null ? Instant.now() : r.occurredAt(), r.nextFollowUpAt()
     ));
+  }
+  @Transactional
+  public void deleteActivity(UUID leadId, UUID activityId, UUID companyId){
+    find(leadId, companyId);
+    LeadActivity activity = activityRepository.findByIdAndLeadIdAndCompanyId(activityId, leadId, companyId)
+      .orElseThrow(() -> new IllegalArgumentException("Actividad no encontrada."));
+    activityRepository.delete(activity);
   }
   private Lead find(UUID leadId, UUID companyId){
     return repo.findByIdAndCompanyIdAndDeletedAtIsNull(leadId, companyId)

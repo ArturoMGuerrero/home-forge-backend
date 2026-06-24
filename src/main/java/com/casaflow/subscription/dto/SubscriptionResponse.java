@@ -22,6 +22,8 @@ public record SubscriptionResponse(
         long days = company.getTrialEndsAt() == null || !company.getTrialEndsAt().isAfter(now)
                 ? 0
                 : Math.max(1, (long) Math.ceil(Duration.between(now, company.getTrialEndsAt()).toMinutes() / 1440.0));
+        boolean hasPayment = company.getMercadoPagoSubscriptionId() != null
+                || company.getLastPaymentAt() != null;
         return new SubscriptionResponse(
                 company.getId(),
                 company.getPlanCode().name(),
@@ -31,7 +33,7 @@ public record SubscriptionResponse(
                 company.getTrialEndsAt(),
                 days,
                 company.getNextBillingAt(),
-                false
+                hasPayment
         );
     }
 }

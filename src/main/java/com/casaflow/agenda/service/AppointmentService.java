@@ -5,6 +5,7 @@ import com.casaflow.agenda.dto.AppointmentRequest;
 import com.casaflow.agenda.repository.AppointmentRepository;
 import com.casaflow.lead.repository.LeadRepository;
 import com.casaflow.property.repository.PropertyRepository;
+import com.casaflow.subscription.SubscriptionValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +17,13 @@ public class AppointmentService {
     private final AppointmentRepository repository;
     private final LeadRepository leadRepository;
     private final PropertyRepository propertyRepository;
+    private final SubscriptionValidator subscriptionValidator;
 
-    public AppointmentService(AppointmentRepository repository, LeadRepository leadRepository, PropertyRepository propertyRepository) {
+    public AppointmentService(AppointmentRepository repository, LeadRepository leadRepository, PropertyRepository propertyRepository, SubscriptionValidator subscriptionValidator) {
         this.repository = repository;
         this.leadRepository = leadRepository;
         this.propertyRepository = propertyRepository;
+        this.subscriptionValidator = subscriptionValidator;
     }
 
     public List<Appointment> list(UUID companyId) {
@@ -28,6 +31,7 @@ public class AppointmentService {
     }
 
     public Appointment create(AppointmentRequest request) {
+        subscriptionValidator.validateActiveSubscription(request.companyId(), "crear nuevas citas");
         validate(request);
         return repository.save(new Appointment(
                 request.companyId(), request.leadId(), request.propertyId(), request.title().trim(),

@@ -31,6 +31,11 @@ public class Company extends AuditableEntity {
     private Instant trialStartedAt = Instant.now();
     private Instant trialEndsAt = Instant.now().plus(14, ChronoUnit.DAYS);
     private Instant nextBillingAt;
+    @Column(length=100) private String mercadoPagoCustomerId;
+    @Column(length=100) private String mercadoPagoSubscriptionId;
+    @Column(length=50) private String paymentMethod;
+    private Instant lastPaymentAt;
+    @Column(length=50) private String lastPaymentStatus;
     protected Company() {}
     public Company(String name, String countryCode, String stateCode, String defaultCurrency, String timezone) {
         this.name = name; this.countryCode = countryCode; this.stateCode = stateCode; this.defaultCurrency = defaultCurrency; this.timezone = timezone;
@@ -65,12 +70,57 @@ public class Company extends AuditableEntity {
     public Integer getYearsExperience() { return yearsExperience; }
     public PlanCode getPlanCode() { return planCode; }
     public String getSubscriptionStatus() { return subscriptionStatus; }
+
+    /**
+     * Calcula el estado real de la suscripción verificando si ha expirado.
+     * Si el estado es TRIAL o ACTIVE pero la fecha de expiración ya pasó, devuelve EXPIRED.
+     */
+    public String getComputedSubscriptionStatus() {
+        Instant now = Instant.now();
+
+        // Verificar si el trial ha expirado
+        if ("TRIAL".equals(subscriptionStatus) && trialEndsAt != null && trialEndsAt.isBefore(now)) {
+            return "EXPIRED";
+        }
+
+        // Verificar si la suscripción activa ha expirado
+        if ("ACTIVE".equals(subscriptionStatus) && nextBillingAt != null && nextBillingAt.isBefore(now)) {
+            return "EXPIRED";
+        }
+
+        return subscriptionStatus;
+    }
+
     public Instant getTrialStartedAt() { return trialStartedAt; }
     public Instant getTrialEndsAt() { return trialEndsAt; }
     public Instant getNextBillingAt() { return nextBillingAt; }
+    public String getMercadoPagoCustomerId() { return mercadoPagoCustomerId; }
+    public String getMercadoPagoSubscriptionId() { return mercadoPagoSubscriptionId; }
+    public String getPaymentMethod() { return paymentMethod; }
+    public Instant getLastPaymentAt() { return lastPaymentAt; }
+    public String getLastPaymentStatus() { return lastPaymentStatus; }
 
     public void changePlan(PlanCode planCode) {
         this.planCode = planCode;
+    }
+
+    public void setMercadoPagoCustomerId(String mercadoPagoCustomerId) {
+        this.mercadoPagoCustomerId = mercadoPagoCustomerId;
+    }
+
+    public void setMercadoPagoSubscriptionId(String mercadoPagoSubscriptionId) {
+        this.mercadoPagoSubscriptionId = mercadoPagoSubscriptionId;
+    }
+
+    public void updatePaymentInfo(String paymentMethod, String paymentStatus) {
+        this.paymentMethod = paymentMethod;
+        this.lastPaymentStatus = paymentStatus;
+        this.lastPaymentAt = Instant.now();
+    }
+
+    public void updateSubscriptionStatus(String status, Instant nextBillingAt) {
+        this.subscriptionStatus = status;
+        this.nextBillingAt = nextBillingAt;
     }
 
     public void updateProfile(

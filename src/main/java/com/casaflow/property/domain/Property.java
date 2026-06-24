@@ -58,6 +58,10 @@ public class Property extends AuditableEntity {
     private String city;
 
     private String address;
+
+    private BigDecimal latitude;
+    private BigDecimal longitude;
+
     private Integer bedrooms;
     private BigDecimal bathrooms;
     private BigDecimal landArea;
@@ -93,6 +97,8 @@ public class Property extends AuditableEntity {
             String stateCode,
             String city,
             String address,
+            BigDecimal latitude,
+            BigDecimal longitude,
             Integer bedrooms,
             BigDecimal bathrooms,
             BigDecimal landArea,
@@ -114,6 +120,8 @@ public class Property extends AuditableEntity {
         this.stateCode = stateCode;
         this.city = city;
         this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.bedrooms = bedrooms;
         this.bathrooms = bathrooms;
         this.landArea = landArea;
@@ -136,6 +144,8 @@ public class Property extends AuditableEntity {
     public String getStateCode() { return stateCode; }
     public String getCity() { return city; }
     public String getAddress() { return address; }
+    public BigDecimal getLatitude() { return latitude; }
+    public BigDecimal getLongitude() { return longitude; }
     public Integer getBedrooms() { return bedrooms; }
     public BigDecimal getBathrooms() { return bathrooms; }
     public BigDecimal getLandArea() { return landArea; }
@@ -156,7 +166,7 @@ public class Property extends AuditableEntity {
     public void update(
             String code, String title, String propertyType, ListingType listingType, PropertyStatus status,
             BigDecimal price, String currencyCode, String countryCode, String stateCode,
-            String city, String address, Integer bedrooms, BigDecimal bathrooms,
+            String city, String address, BigDecimal latitude, BigDecimal longitude, Integer bedrooms, BigDecimal bathrooms,
             BigDecimal landArea, BigDecimal constructionArea, Integer parkingSpaces,
             String description, String imageUrl, boolean published
     ) {
@@ -171,6 +181,8 @@ public class Property extends AuditableEntity {
         this.stateCode = stateCode;
         this.city = city;
         this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.bedrooms = bedrooms;
         this.bathrooms = bathrooms;
         this.landArea = landArea;

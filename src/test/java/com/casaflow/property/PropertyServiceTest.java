@@ -6,6 +6,7 @@ import com.casaflow.property.domain.PropertyStatus;
 import com.casaflow.property.repository.PropertyRepository;
 import com.casaflow.property.service.PropertyService;
 import com.casaflow.property.service.PropertyImageStorage;
+import com.casaflow.subscription.SubscriptionValidator;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -20,7 +21,8 @@ class PropertyServiceTest {
     void createsProperty() {
         PropertyRepository repository = Mockito.mock(PropertyRepository.class);
         PropertyImageStorage imageStorage = Mockito.mock(PropertyImageStorage.class);
-        PropertyService service = new PropertyService(repository, imageStorage);
+        SubscriptionValidator subscriptionValidator = Mockito.mock(SubscriptionValidator.class);
+        PropertyService service = new PropertyService(repository, imageStorage, subscriptionValidator);
 
         service.create(new CreatePropertyRequest(
                 UUID.randomUUID(),
@@ -35,6 +37,8 @@ class PropertyServiceTest {
                 "Querétaro",
                 "Querétaro",
                 "Av. Principal 100",
+                new BigDecimal("20.5888"),
+                new BigDecimal("-100.3899"),
                 3,
                 new BigDecimal("2.5"),
                 new BigDecimal("220"),

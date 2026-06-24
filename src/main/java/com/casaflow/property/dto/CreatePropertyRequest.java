@@ -28,6 +28,8 @@ public record CreatePropertyRequest(
         @NotBlank @Size(max = 80) String stateCode,
         @NotBlank @Size(max = 120) String city,
         @Size(max = 255) String address,
+        @Digits(integer = 2, fraction = 6) BigDecimal latitude,
+        @Digits(integer = 3, fraction = 6) BigDecimal longitude,
         @Min(0) @Max(100) Integer bedrooms,
         @DecimalMin("0.0") @Max(100) @Digits(integer = 3, fraction = 1) BigDecimal bathrooms,
         @DecimalMin("0.0") @Digits(integer = 8, fraction = 2) BigDecimal landArea,

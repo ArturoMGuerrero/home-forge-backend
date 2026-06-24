@@ -18,4 +18,5 @@ public class LeadController {
   @PutMapping("/{leadId}") public Lead update(@PathVariable UUID leadId, @Valid @RequestBody UpdateLeadRequest request){ return service.update(leadId, request); }
   @GetMapping("/{leadId}/activities") public List<LeadActivity> activities(@PathVariable UUID leadId, @RequestParam UUID companyId){ return service.activities(leadId, companyId); }
   @PostMapping("/{leadId}/activities") public LeadActivity addActivity(@PathVariable UUID leadId, @Valid @RequestBody CreateLeadActivityRequest request){ return service.addActivity(leadId, request); }
+  @DeleteMapping("/{leadId}/activities/{activityId}") public void deleteActivity(@PathVariable UUID leadId, @PathVariable UUID activityId, @RequestParam UUID companyId){ service.deleteActivity(leadId, activityId, companyId); }
 }

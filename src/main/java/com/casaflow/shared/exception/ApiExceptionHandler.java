@@ -2,6 +2,7 @@ package com.casaflow.shared.exception;
 
 import com.casaflow.auth.exception.EmailAlreadyExistsException;
 import com.casaflow.auth.exception.InvalidCredentialsException;
+import com.casaflow.subscription.exception.SubscriptionExpiredException;
 import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -29,5 +30,10 @@ public class ApiExceptionHandler {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .findFirst().map(e -> e.getField() + ": " + e.getDefaultMessage()).orElse("Validation error");
         return ResponseEntity.badRequest().body(Map.of("error", message));
+    }
+
+    @ExceptionHandler(SubscriptionExpiredException.class)
+    ResponseEntity<Map<String, String>> subscriptionExpired(SubscriptionExpiredException ex) {
+        return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body(Map.of("error", ex.getMessage()));
     }
 }

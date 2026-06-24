@@ -5,6 +5,7 @@ import com.casaflow.property.domain.ListingType;
 import com.casaflow.property.domain.PropertyStatus;
 import com.casaflow.property.dto.CreatePropertyRequest;
 import com.casaflow.property.repository.PropertyRepository;
+import com.casaflow.subscription.SubscriptionValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,19 +18,22 @@ public class PropertyService {
 
     private final PropertyRepository repository;
     private final PropertyImageStorage imageStorage;
+    private final SubscriptionValidator subscriptionValidator;
 
-    public PropertyService(PropertyRepository repository, PropertyImageStorage imageStorage) {
+    public PropertyService(PropertyRepository repository, PropertyImageStorage imageStorage, SubscriptionValidator subscriptionValidator) {
         this.repository = repository;
         this.imageStorage = imageStorage;
+        this.subscriptionValidator = subscriptionValidator;
     }
 
     public Property create(CreatePropertyRequest request) {
+        subscriptionValidator.validateActiveSubscription(request.companyId(), "crear nuevas propiedades");
         validateStatus(request.listingType(), request.status());
         return repository.save(new Property(
                 request.companyId(), request.code(), request.title(), request.propertyType(),
                 request.listingType(), request.status(), request.price(), request.currencyCode(), request.countryCode(),
-                request.stateCode(), request.city(), request.address(), request.bedrooms(),
-                request.bathrooms(), request.landArea(), request.constructionArea(),
+                request.stateCode(), request.city(), request.address(), request.latitude(), request.longitude(),
+                request.bedrooms(), request.bathrooms(), request.landArea(), request.constructionArea(),
                 request.parkingSpaces(), request.description(), request.imageUrl(), request.published()
         ));
     }
@@ -54,7 +58,7 @@ public class PropertyService {
         property.update(
                 request.code(), request.title(), request.propertyType(), request.listingType(),
                 request.status(), request.price(), request.currencyCode(), request.countryCode(), request.stateCode(),
-                request.city(), request.address(), request.bedrooms(), request.bathrooms(),
+                request.city(), request.address(), request.latitude(), request.longitude(), request.bedrooms(), request.bathrooms(),
                 request.landArea(), request.constructionArea(), request.parkingSpaces(),
                 request.description(), request.imageUrl(), request.published()
         );

@@ -1,11 +1,15 @@
 # Build output
 target/
+*.class
 
 # User uploads
 uploads/
 
 # H2 Database
 data/
+*.db
+*.mv.db
+*.trace.db
 
 # Logs
 *.log
@@ -19,27 +23,38 @@ startup*.log
 *.old
 *.disabled
 
-# SQL scripts (except migrations)
+# SQL scripts temporales (root level)
 /*.sql
 
 # Test files
 TestConnection.java
 TestConnection.class
 
-# Scripts temporales
-start-*.cmd
-start-*.sh
-habilitar-*.cmd
-reiniciar-*.cmd
-configurar-*.md
-HABILITAR_*.md
+# Scripts temporales de desarrollo/testing
+APLICAR_V20_MANUAL.cmd
+CHECK_COLUMNS.cmd
+CREAR_COLUMNAS.cmd
+LIMPIAR_MERCADOPAGO.cmd
+LIMPIAR_TODO_V20.cmd
+REPARAR_FLYWAY.cmd
+VENCER_TRIAL.cmd
 
-# Python temp
+# Python temp files
 *.pyc
 __pycache__/
-*.py
 
-# IDE
+# IDE and editors
 .idea/
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 *.iml
+*.swp
+*.swo
+.DS_Store
+
+# Environment
+.env.local
+.env.*.local
+
+# Maven wrapper (opcional)
+!.mvn/wrapper/maven-wrapper.jar

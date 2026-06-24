@@ -6,11 +6,22 @@ spring:
     password: 'P@ssw0rd!2024#Complex'
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate:
         dialect: org.hibernate.dialect.SQLServerDialect
         format_sql: true
     show-sql: true
   flyway:
-    enabled: false
+    enabled: true
+    locations: classpath:db/migration/sqlserver
+    repair-on-migrate: true
+
+mercadopago:
+  access-token: APP_USR-542999628084812-062214-4480f843db056769d9d689546daf7ab3-3491719888
+  public-key: APP_USR-6910e475-3ba8-4311-85e1-6259cda8f5a5
+  plan:
+    pro:
+      price: 99900
+    business:
+      price: 399900
