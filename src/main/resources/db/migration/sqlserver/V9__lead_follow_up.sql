@@ -1,26 +1,24 @@
 -- SQL Server version
 
-ALTER TABLE leads
-  ADD listing_type NVARCHAR(20),
-  ADD budget_min DECIMAL(14,2),
-  ADD country_code NVARCHAR(2),
-  ADD state_code NVARCHAR(80),
-  ADD city NVARCHAR(120),
-  ADD property_type NVARCHAR(40),
-  ADD bedrooms_min INTEGER,
-  ADD bathrooms_min DECIMAL(4,1),
-  ADD financing_type NVARCHAR(40),
-  ADD priority NVARCHAR(20) NOT NULL DEFAULT 'MEDIUM',
-  ADD assigned_to NVARCHAR(180),
-  ADD next_follow_up_at DATETIME2,
-  ADD notes NVARCHAR(MAX);
+ALTER TABLE leads ADD listing_type NVARCHAR(20);
+ALTER TABLE leads ADD budget_min DECIMAL(14,2);
+ALTER TABLE leads ADD country_code NVARCHAR(2);
+ALTER TABLE leads ADD state_code NVARCHAR(80);
+ALTER TABLE leads ADD city NVARCHAR(120);
+ALTER TABLE leads ADD property_type NVARCHAR(40);
+ALTER TABLE leads ADD bedrooms_min INTEGER;
+ALTER TABLE leads ADD bathrooms_min DECIMAL(4,1);
+ALTER TABLE leads ADD financing_type NVARCHAR(40);
+ALTER TABLE leads ADD priority NVARCHAR(20) NOT NULL DEFAULT 'MEDIUM';
+ALTER TABLE leads ADD assigned_to NVARCHAR(180);
+ALTER TABLE leads ADD next_follow_up_at DATETIME2;
+ALTER TABLE leads ADD notes NVARCHAR(MAX);
 
-ALTER TABLE leads
-  ADD CONSTRAINT chk_lead_budget_range
-  CHECK (budget_min IS NULL OR budget_amount IS NULL OR budget_min <= budget_amount),
-  ADD CONSTRAINT chk_lead_bedrooms_min
-  CHECK (bedrooms_min IS NULL OR bedrooms_min >= 0),
-  ADD CONSTRAINT chk_lead_bathrooms_min
+ALTER TABLE leads ADD CONSTRAINT chk_lead_budget_range
+  CHECK (budget_min IS NULL OR budget_amount IS NULL OR budget_min <= budget_amount);
+ALTER TABLE leads ADD CONSTRAINT chk_lead_bedrooms_min
+  CHECK (bedrooms_min IS NULL OR bedrooms_min >= 0);
+ALTER TABLE leads ADD CONSTRAINT chk_lead_bathrooms_min
   CHECK (bathrooms_min IS NULL OR bathrooms_min >= 0);
 
 CREATE TABLE lead_activities (

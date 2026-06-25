@@ -36,13 +36,12 @@ CREATE TABLE lead_property_matches (
 CREATE INDEX idx_matches_company_lead
   ON lead_property_matches(company_id, lead_id);
 
-ALTER TABLE documents
-  ADD property_id UNIQUEIDENTIFIER REFERENCES properties(id),
-  ADD file_path NVARCHAR(1000),
-  ADD content_type NVARCHAR(180),
-  ADD file_size BIGINT,
-  ADD notes NVARCHAR(MAX),
-  ADD updated_at DATETIME2 NOT NULL DEFAULT GETDATE();
+ALTER TABLE documents ADD property_id UNIQUEIDENTIFIER REFERENCES properties(id);
+ALTER TABLE documents ADD file_path NVARCHAR(1000);
+ALTER TABLE documents ADD content_type NVARCHAR(180);
+ALTER TABLE documents ADD file_size BIGINT;
+ALTER TABLE documents ADD notes NVARCHAR(MAX);
+ALTER TABLE documents ADD updated_at DATETIME2 NOT NULL DEFAULT GETDATE();
 
 CREATE INDEX idx_documents_company_created
   ON documents(company_id, created_at DESC);
