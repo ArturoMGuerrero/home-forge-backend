@@ -29,6 +29,9 @@ public class User extends AuditableEntity {
     @Column(nullable = false, length = 40)
     private String role = "ADMIN";
 
+    @Column(name = "role_id")
+    private UUID roleId;
+
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
 
@@ -76,7 +79,35 @@ public class User extends AuditableEntity {
         return active;
     }
 
+    public UUID getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(UUID roleId) {
+        this.roleId = roleId;
+    }
+
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setPhoneE164(String phoneE164) {
+        this.phoneE164 = phoneE164;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

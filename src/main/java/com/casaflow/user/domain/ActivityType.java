@@ -1,0 +1,52 @@
+package com.casaflow.user.domain;
+
+public enum ActivityType {
+    // Auth
+    LOGIN,
+    LOGOUT,
+    PASSWORD_CHANGE,
+    PASSWORD_RESET,
+
+    // Users
+    USER_CREATED,
+    USER_UPDATED,
+    USER_DEACTIVATED,
+    USER_ACTIVATED,
+    USER_ROLE_CHANGED,
+
+    // Leads
+    LEAD_CREATED,
+    LEAD_UPDATED,
+    LEAD_DELETED,
+    LEAD_STATUS_CHANGED,
+    LEAD_ASSIGNED,
+
+    // Properties
+    PROPERTY_CREATED,
+    PROPERTY_UPDATED,
+    PROPERTY_DELETED,
+    PROPERTY_STATUS_CHANGED,
+    PROPERTY_PUBLISHED,
+
+    // Documents
+    DOCUMENT_UPLOADED,
+    DOCUMENT_DELETED,
+
+    // Agenda
+    APPOINTMENT_CREATED,
+    APPOINTMENT_UPDATED,
+    APPOINTMENT_DELETED,
+
+    // Teams
+    TEAM_CREATED,
+    TEAM_UPDATED,
+    TEAM_MEMBER_ADDED,
+    TEAM_MEMBER_REMOVED,
+
+    // Settings
+    COMPANY_SETTINGS_UPDATED,
+    SUBSCRIPTION_CHANGED,
+
+    // Reports
+    REPORT_EXPORTED
+}

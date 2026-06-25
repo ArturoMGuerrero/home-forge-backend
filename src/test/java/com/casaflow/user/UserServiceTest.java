@@ -5,6 +5,8 @@ import com.casaflow.company.repository.CompanyRepository;
 import com.casaflow.user.domain.User;
 import com.casaflow.user.dto.CreateCompanyUserRequest;
 import com.casaflow.user.repository.UserRepository;
+import com.casaflow.user.repository.UserSettingsRepository;
+import com.casaflow.user.service.UserActivityService;
 import com.casaflow.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -77,6 +79,8 @@ class UserServiceTest {
     }
 
     private UserService service(UserRepository users, CompanyRepository companies) {
-        return new UserService(users, companies, new BCryptPasswordEncoder());
+        UserSettingsRepository userSettingsRepository = Mockito.mock(UserSettingsRepository.class);
+        UserActivityService userActivityService = Mockito.mock(UserActivityService.class);
+        return new UserService(users, companies, new BCryptPasswordEncoder(), userSettingsRepository, userActivityService);
     }
 }
