@@ -6,7 +6,7 @@ ALTER TABLE companies
   ADD next_billing_at DATETIME2;
 
 UPDATE companies
-SET trial_started_at = CURRENT_TIMESTAMP,
-    trial_ends_at = CURRENT_TIMESTAMP + INTERVAL '14 days',
+SET trial_started_at = GETDATE(),
+    trial_ends_at = DATEADD(DAY, 14, GETDATE()),
     subscription_status = 'TRIAL'
 WHERE trial_started_at IS NULL;
