@@ -41,6 +41,21 @@ public class LeadActivity {
     @Column(nullable = false)
     private Instant createdAt = Instant.now();
 
+    private UUID userId;
+
+    private Integer durationMinutes;
+
+    @Column(length = 50)
+    private String outcome;
+
+    private UUID propertyId;
+
+    @Column(columnDefinition = "text")
+    private String attachments;
+
+    @Column(columnDefinition = "text")
+    private String metadata;
+
     protected LeadActivity() {
     }
 
@@ -68,4 +83,17 @@ public class LeadActivity {
     public Instant getOccurredAt() { return occurredAt; }
     public Instant getNextFollowUpAt() { return nextFollowUpAt; }
     public Instant getCreatedAt() { return createdAt; }
+    public UUID getUserId() { return userId; }
+    public Integer getDurationMinutes() { return durationMinutes; }
+    public String getOutcome() { return outcome; }
+    public UUID getPropertyId() { return propertyId; }
+    public String getAttachments() { return attachments; }
+    public String getMetadata() { return metadata; }
+
+    public void setUserId(UUID userId) { this.userId = userId; }
+    public void setDurationMinutes(Integer durationMinutes) { this.durationMinutes = durationMinutes; }
+    public void setOutcome(String outcome) { this.outcome = outcome; }
+    public void setPropertyId(UUID propertyId) { this.propertyId = propertyId; }
+    public void setAttachments(String attachments) { this.attachments = attachments; }
+    public void setMetadata(String metadata) { this.metadata = metadata; }
 }

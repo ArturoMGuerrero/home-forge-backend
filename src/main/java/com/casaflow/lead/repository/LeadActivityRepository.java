@@ -10,4 +10,6 @@ import java.util.UUID;
 public interface LeadActivityRepository extends JpaRepository<LeadActivity, UUID> {
     List<LeadActivity> findByLeadIdAndCompanyIdOrderByOccurredAtDesc(UUID leadId, UUID companyId);
     Optional<LeadActivity> findByIdAndLeadIdAndCompanyId(UUID activityId, UUID leadId, UUID companyId);
+    List<LeadActivity> findByUserIdAndCompanyIdOrderByOccurredAtDesc(UUID userId, UUID companyId);
+    List<LeadActivity> findByPropertyIdAndCompanyIdOrderByOccurredAtDesc(UUID propertyId, UUID companyId);
 }

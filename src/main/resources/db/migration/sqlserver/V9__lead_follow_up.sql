@@ -1,5 +1,6 @@
 -- SQL Server version
 
+-- Add lead follow-up columns
 ALTER TABLE leads ADD listing_type NVARCHAR(20);
 ALTER TABLE leads ADD budget_min DECIMAL(14,2);
 ALTER TABLE leads ADD country_code NVARCHAR(2);
@@ -14,13 +15,7 @@ ALTER TABLE leads ADD assigned_to NVARCHAR(180);
 ALTER TABLE leads ADD next_follow_up_at DATETIME2;
 ALTER TABLE leads ADD notes NVARCHAR(MAX);
 
-ALTER TABLE leads ADD CONSTRAINT chk_lead_budget_range
-  CHECK (budget_min IS NULL OR budget_amount IS NULL OR budget_min <= budget_amount);
-ALTER TABLE leads ADD CONSTRAINT chk_lead_bedrooms_min
-  CHECK (bedrooms_min IS NULL OR bedrooms_min >= 0);
-ALTER TABLE leads ADD CONSTRAINT chk_lead_bathrooms_min
-  CHECK (bathrooms_min IS NULL OR bathrooms_min >= 0);
-
+-- Create lead_activities table
 CREATE TABLE lead_activities (
   id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
   company_id UNIQUEIDENTIFIER NOT NULL REFERENCES companies(id),
@@ -32,8 +27,6 @@ CREATE TABLE lead_activities (
   created_at DATETIME2 NOT NULL DEFAULT GETDATE()
 );
 
-CREATE INDEX idx_lead_activities_lead_occurred
-  ON lead_activities(lead_id, occurred_at DESC);
-
-CREATE INDEX idx_leads_next_follow_up
-  ON leads(company_id, next_follow_up_at);
+-- Create indexes
+CREATE INDEX idx_lead_activities_lead_occurred ON lead_activities(lead_id, occurred_at DESC);
+CREATE INDEX idx_leads_next_follow_up ON leads(company_id, next_follow_up_at);

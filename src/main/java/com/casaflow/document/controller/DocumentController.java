@@ -40,6 +40,15 @@ public class DocumentController {
                 .body(service.resource(id, companyId));
     }
 
+    @GetMapping("/{id}/view")
+    public ResponseEntity<Resource> view(@PathVariable UUID id, @RequestParam UUID companyId) {
+        StoredDocument document = service.get(id, companyId);
+        return ResponseEntity.ok()
+                .contentType(document.getContentType() == null ? MediaType.APPLICATION_OCTET_STREAM : MediaType.parseMediaType(document.getContentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + document.getFileName().replace("\"", "") + "\"")
+                .body(service.resource(id, companyId));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id, @RequestParam UUID companyId) {
         service.delete(id, companyId);

@@ -1,5 +1,6 @@
 package com.casaflow.lead.controller;
 import com.casaflow.lead.domain.Lead;
+import com.casaflow.lead.dto.ChangeLeadStatusRequest;
 import com.casaflow.lead.dto.CreateLeadRequest;
 import com.casaflow.lead.dto.CreateLeadActivityRequest;
 import com.casaflow.lead.dto.UpdateLeadRequest;
@@ -16,7 +17,10 @@ public class LeadController {
   @GetMapping public List<Lead> list(@RequestParam UUID companyId){ return service.byCompany(companyId); }
   @GetMapping("/{leadId}") public Lead get(@PathVariable UUID leadId, @RequestParam UUID companyId){ return service.get(leadId, companyId); }
   @PutMapping("/{leadId}") public Lead update(@PathVariable UUID leadId, @Valid @RequestBody UpdateLeadRequest request){ return service.update(leadId, request); }
+  @PatchMapping("/{leadId}/status") public Lead changeStatus(@PathVariable UUID leadId, @Valid @RequestBody ChangeLeadStatusRequest request){ return service.changeStatus(leadId, request); }
   @GetMapping("/{leadId}/activities") public List<LeadActivity> activities(@PathVariable UUID leadId, @RequestParam UUID companyId){ return service.activities(leadId, companyId); }
   @PostMapping("/{leadId}/activities") public LeadActivity addActivity(@PathVariable UUID leadId, @Valid @RequestBody CreateLeadActivityRequest request){ return service.addActivity(leadId, request); }
   @DeleteMapping("/{leadId}/activities/{activityId}") public void deleteActivity(@PathVariable UUID leadId, @PathVariable UUID activityId, @RequestParam UUID companyId){ service.deleteActivity(leadId, activityId, companyId); }
+  @GetMapping("/activities/user/{userId}") public List<LeadActivity> activitiesByUser(@PathVariable UUID userId, @RequestParam UUID companyId){ return service.activitiesByUser(userId, companyId); }
+  @GetMapping("/activities/property/{propertyId}") public List<LeadActivity> activitiesByProperty(@PathVariable UUID propertyId, @RequestParam UUID companyId){ return service.activitiesByProperty(propertyId, companyId); }
 }

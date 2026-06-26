@@ -124,7 +124,38 @@ Una vez iniciado, el backend estará disponible en: **http://localhost:8080**
 #### Prospectos (Leads)
 - `GET /api/leads` - Listar prospectos
 - `POST /api/leads` - Crear prospecto
+- `PATCH /api/leads/{id}/status` - Cambiar estado (trigger de automatización)
 - `GET /api/leads/{id}/activities` - Ver actividades de un prospecto
+- `POST /api/leads/{id}/calculate-score` - Calcular score del lead
+
+#### Pipeline de Ventas
+- `GET /api/leads?status=QUALIFIED` - Filtrar por estado (Kanban)
+- `PATCH /api/leads/{id}/status` - Mover entre columnas del pipeline
+
+#### Tareas de Seguimiento
+- `GET /api/follow-up-tasks` - Listar tareas
+- `GET /api/follow-up-tasks/lead/{leadId}` - Tareas de un prospecto
+- `GET /api/follow-up-tasks/overdue` - Tareas vencidas
+- `POST /api/follow-up-tasks` - Crear tarea manual
+- `PATCH /api/follow-up-tasks/{id}` - Actualizar tarea
+
+#### Scoring de Leads
+- `POST /api/leads/{id}/calculate-score` - Recalcular score
+- `GET /api/leads/{id}/score-history` - Historial de cambios de score
+
+#### Asignación Automática
+- `GET /api/assignment-rules` - Listar reglas de asignación
+- `POST /api/assignment-rules` - Crear regla
+- `PATCH /api/assignment-rules/{id}` - Actualizar regla
+
+#### Documentos y Contratos
+- `GET /api/document-templates` - Listar plantillas
+- `POST /api/document-templates` - Crear plantilla
+- `GET /api/documents` - Listar documentos generados
+- `POST /api/documents` - Generar documento desde plantilla
+- `POST /api/documents/{id}/send-for-signature` - Enviar para firma
+- `GET /api/document-signatures/document/{id}` - Firmas de un documento
+- `POST /api/document-signatures/{id}/sign` - Firmar documento
 
 #### Empresas
 - `GET /api/companies` - Listar empresas
@@ -165,11 +196,17 @@ Ubicación:
 - `companies` - Empresas (multi-tenant)
 - `users` - Usuarios del sistema
 - `properties` - Inventario de propiedades
-- `leads` - Prospectos/clientes potenciales
-- `lead_activities` - Seguimiento de actividades de prospectos
+- `leads` - Prospectos/clientes potenciales (con scoring)
+- `lead_activities` - Seguimiento extendido de actividades
+- `lead_score_history` - Historial de cambios de score
+- `follow_up_tasks` - Tareas automatizadas de seguimiento
+- `lead_assignment_rules` - Reglas de asignación automática de leads
 - `developments` - Desarrollos inmobiliarios
 - `tasks` - Tareas y seguimiento
 - `documents` - Archivos adjuntos
+- `document_templates` - Plantillas de contratos reutilizables
+- `documents` - Documentos generados (contratos, acuerdos)
+- `document_signatures` - Firmas electrónicas de documentos
 - `subscription_plans` - Planes de suscripción (Trial, Básico, Profesional, Empresarial)
 - `subscriptions` - Suscripciones activas de empresas
 - `payments` - Registro de pagos procesados

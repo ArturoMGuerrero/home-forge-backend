@@ -32,6 +32,8 @@ public class Lead extends AuditableEntity {
     private String assignedTo;
     private Instant nextFollowUpAt;
     @Column(columnDefinition="text") private String notes;
+    @Column(nullable=false) private int score = 0;
+    private Instant scoreUpdatedAt;
     protected Lead() {}
     public Lead(
             UUID companyId, String firstName, String lastName, String email, String phoneE164,
@@ -57,7 +59,12 @@ public class Lead extends AuditableEntity {
     public String getAssignedTo(){return assignedTo;}
     public Instant getNextFollowUpAt(){return nextFollowUpAt;}
     public String getNotes(){return notes;}
+    public int getScore(){return score;}
+    public Instant getScoreUpdatedAt(){return scoreUpdatedAt;}
     public void setNextFollowUpAt(Instant nextFollowUpAt){this.nextFollowUpAt=nextFollowUpAt;}
+    public void setStatus(LeadStatus status){this.status=status;}
+    public void setScore(int score){this.score=score; this.scoreUpdatedAt=Instant.now();}
+    public void setAssignedTo(String assignedTo){this.assignedTo=assignedTo;}
     public void update(
             String firstName, String lastName, String email, String phoneE164, String source,
             LeadStatus status, String listingType, BigDecimal budgetMin, BigDecimal budgetMax,

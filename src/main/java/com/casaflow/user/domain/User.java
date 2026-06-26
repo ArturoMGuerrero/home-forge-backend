@@ -35,6 +35,9 @@ public class User extends AuditableEntity {
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
 
+    @Column(name = "last_assigned_lead_at")
+    private java.time.Instant lastAssignedLeadAt;
+
     protected User() {
     }
 
@@ -109,5 +112,13 @@ public class User extends AuditableEntity {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public java.time.Instant getLastAssignedLeadAt() {
+        return lastAssignedLeadAt;
+    }
+
+    public void setLastAssignedLeadAt(java.time.Instant lastAssignedLeadAt) {
+        this.lastAssignedLeadAt = lastAssignedLeadAt;
     }
 }

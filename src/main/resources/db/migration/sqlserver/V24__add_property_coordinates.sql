@@ -8,4 +8,4 @@ IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='proper
 
 -- Crear índice para búsquedas por coordenadas (útil para búsquedas geográficas)
 CREATE INDEX idx_properties_coordinates ON properties(latitude, longitude)
-WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
+WHERE (latitude IS NOT NULL AND longitude IS NOT NULL);

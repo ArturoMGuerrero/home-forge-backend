@@ -13,6 +13,12 @@ public record CreateLeadActivityRequest(
         @NotNull LeadActivityType activityType,
         @NotBlank @Size(max=5000) String notes,
         Instant occurredAt,
-        Instant nextFollowUpAt
+        Instant nextFollowUpAt,
+        UUID userId,
+        Integer durationMinutes,
+        @Size(max=50) String outcome,
+        UUID propertyId,
+        @Size(max=5000) String attachments,
+        @Size(max=5000) String metadata
 ) {
 }

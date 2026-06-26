@@ -5,6 +5,7 @@ ALTER TABLE companies ADD subscription_status NVARCHAR(20) NOT NULL DEFAULT 'ACT
 
 ALTER TABLE users
   ADD is_active BIT NOT NULL DEFAULT 1;
+GO
 
 UPDATE companies
 SET plan_code = 'STARTER',
