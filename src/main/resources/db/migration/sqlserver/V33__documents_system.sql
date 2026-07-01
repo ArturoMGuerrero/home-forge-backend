@@ -16,30 +16,41 @@ CREATE TABLE document_templates (
     deleted_at DATETIME2
 );
 
--- Create documents table
-CREATE TABLE documents (
-    id UNIQUEIDENTIFIER DEFAULT NEWID() PRIMARY KEY,
-    company_id UNIQUEIDENTIFIER NOT NULL,
-    template_id UNIQUEIDENTIFIER,
-    name NVARCHAR(255) NOT NULL,
-    document_type NVARCHAR(50) NOT NULL,
-    status NVARCHAR(50) NOT NULL DEFAULT 'DRAFT',
-    content NVARCHAR(MAX),
-    file_url NVARCHAR(500),
-    file_size BIGINT,
-    mime_type NVARCHAR(100),
-    version INT NOT NULL DEFAULT 1,
-    lead_id UNIQUEIDENTIFIER,
-    property_id UNIQUEIDENTIFIER,
-    created_by_user_id UNIQUEIDENTIFIER,
-    metadata NVARCHAR(MAX),
-    created_at DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    updated_at DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    deleted_at DATETIME2,
-    CONSTRAINT fk_documents_template FOREIGN KEY (template_id) REFERENCES document_templates(id),
-    CONSTRAINT fk_documents_lead FOREIGN KEY (lead_id) REFERENCES leads(id),
-    CONSTRAINT fk_documents_property FOREIGN KEY (property_id) REFERENCES properties(id)
-);
+-- Add new columns to existing documents table
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='documents' AND COLUMN_NAME='template_id')
+    ALTER TABLE documents ADD template_id UNIQUEIDENTIFIER;
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='documents' AND COLUMN_NAME='name')
+    ALTER TABLE documents ADD name NVARCHAR(255);
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='documents' AND COLUMN_NAME='content')
+    ALTER TABLE documents ADD content NVARCHAR(MAX);
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='documents' AND COLUMN_NAME='file_url')
+    ALTER TABLE documents ADD file_url NVARCHAR(500);
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='documents' AND COLUMN_NAME='mime_type')
+    ALTER TABLE documents ADD mime_type NVARCHAR(100);
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='documents' AND COLUMN_NAME='version')
+    ALTER TABLE documents ADD version INT NOT NULL DEFAULT 1;
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='documents' AND COLUMN_NAME='created_by_user_id')
+    ALTER TABLE documents ADD created_by_user_id UNIQUEIDENTIFIER;
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='documents' AND COLUMN_NAME='metadata')
+    ALTER TABLE documents ADD metadata NVARCHAR(MAX);
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='documents' AND COLUMN_NAME='updated_at')
+    ALTER TABLE documents ADD updated_at DATETIME2 NOT NULL DEFAULT GETUTCDATE();
+GO
+
+-- Add foreign key constraints if they don't exist
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name='fk_documents_template')
+    ALTER TABLE documents ADD CONSTRAINT fk_documents_template FOREIGN KEY (template_id) REFERENCES document_templates(id);
+
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name='fk_documents_property')
+    ALTER TABLE documents ADD CONSTRAINT fk_documents_property FOREIGN KEY (property_id) REFERENCES properties(id);
 
 -- Create document_signatures table
 CREATE TABLE document_signatures (
@@ -65,14 +76,12 @@ CREATE INDEX idx_document_templates_company ON document_templates(company_id);
 CREATE INDEX idx_document_templates_type ON document_templates(document_type);
 CREATE INDEX idx_document_templates_active ON document_templates(active);
 
--- Indexes for documents
-CREATE INDEX idx_documents_company ON documents(company_id);
-CREATE INDEX idx_documents_template ON documents(template_id);
-CREATE INDEX idx_documents_type ON documents(document_type);
-CREATE INDEX idx_documents_status ON documents(status);
-CREATE INDEX idx_documents_lead ON documents(lead_id);
-CREATE INDEX idx_documents_property ON documents(property_id);
-CREATE INDEX idx_documents_created_by ON documents(created_by_user_id);
+-- Indexes for documents (only create if they don't exist)
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name='idx_documents_template' AND object_id = OBJECT_ID('documents'))
+    CREATE INDEX idx_documents_template ON documents(template_id);
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name='idx_documents_created_by' AND object_id = OBJECT_ID('documents'))
+    CREATE INDEX idx_documents_created_by ON documents(created_by_user_id);
 
 -- Indexes for document_signatures
 CREATE INDEX idx_signatures_document ON document_signatures(document_id);

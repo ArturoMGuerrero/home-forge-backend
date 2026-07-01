@@ -12,7 +12,7 @@ public interface LeadAssignmentRuleRepository extends JpaRepository<LeadAssignme
     List<LeadAssignmentRule> findByCompanyIdAndDeletedAtIsNullOrderByPriorityAsc(UUID companyId);
 
     @Query("SELECT r FROM LeadAssignmentRule r WHERE r.companyId = :companyId " +
-           "AND r.active = true AND r.deletedAtIsNull ORDER BY r.priority ASC")
+           "AND r.active = true AND r.deletedAt IS NULL ORDER BY r.priority ASC")
     List<LeadAssignmentRule> findActiveRules(UUID companyId);
 
     Optional<LeadAssignmentRule> findByIdAndCompanyIdAndDeletedAtIsNull(UUID id, UUID companyId);
