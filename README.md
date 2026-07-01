@@ -157,6 +157,32 @@ Una vez iniciado, el backend estará disponible en: **http://localhost:8080**
 - `GET /api/document-signatures/document/{id}` - Firmas de un documento
 - `POST /api/document-signatures/{id}/sign` - Firmar documento
 
+#### Notificaciones y Comunicación
+- `GET /api/notifications` - Listar notificaciones
+- `POST /api/notifications` - Crear notificación
+- `POST /api/notifications/{id}/send` - Enviar notificación manualmente
+- `PATCH /api/notifications/{id}/status` - Actualizar estado
+- `GET /api/message-templates` - Listar plantillas de mensajes
+- `POST /api/message-templates` - Crear plantilla
+- `GET /api/message-templates/by-type` - Filtrar por tipo
+- `PATCH /api/message-templates/{id}/toggle-active` - Activar/desactivar plantilla
+
+#### Calendario y Citas
+- `GET /api/appointments` - Listar citas (con filtros por fecha, usuario, lead)
+- `POST /api/appointments` - Crear cita
+- `GET /api/appointments/{id}` - Obtener cita
+- `PUT /api/appointments/{id}` - Actualizar cita
+- `DELETE /api/appointments/{id}` - Eliminar cita (soft delete)
+- `PATCH /api/appointments/{id}/status` - Cambiar estado
+- `POST /api/appointments/{id}/reminder-sent` - Marcar recordatorio enviado
+- `POST /api/appointments/{id}/sync-google` - Sincronizar con Google Calendar
+
+#### Disponibilidad de Agentes
+- `GET /api/agent-availability` - Listar disponibilidad (por usuario/día)
+- `POST /api/agent-availability` - Crear horario disponible
+- `PUT /api/agent-availability/{id}` - Actualizar disponibilidad
+- `DELETE /api/agent-availability/{id}` - Eliminar disponibilidad
+
 #### Empresas
 - `GET /api/companies` - Listar empresas
 - `GET /api/companies/{id}` - Obtener empresa por ID
@@ -207,6 +233,15 @@ Ubicación:
 - `document_templates` - Plantillas de contratos reutilizables
 - `documents` - Documentos generados (contratos, acuerdos)
 - `document_signatures` - Firmas electrónicas de documentos
+- `message_templates` - Plantillas de mensajes para notificaciones
+- `notifications` - Notificaciones enviadas (Email, WhatsApp, Push, SMS)
+- `communication_channels` - Configuración de canales de comunicación
+- `push_subscriptions` - Suscripciones a notificaciones push
+- `notification_preferences` - Preferencias de notificaciones por usuario
+- `appointments` - Citas y eventos del calendario
+- `agent_availability` - Disponibilidad de agentes por día/hora
+- `calendar_blocks` - Bloqueos de calendario
+- `appointment_reminders` - Recordatorios de citas
 - `subscription_plans` - Planes de suscripción (Trial, Básico, Profesional, Empresarial)
 - `subscriptions` - Suscripciones activas de empresas
 - `payments` - Registro de pagos procesados
