@@ -1,9 +1,13 @@
 # Build output
 target/
 *.class
+build/
+out/
 
 # User uploads
 uploads/
+documents/
+attachments/
 
 # H2 Database
 data/
@@ -15,6 +19,7 @@ data/
 *.log
 backend-*.log
 startup*.log
+logs/
 
 # Temporary files
 *.tmp
@@ -51,10 +56,37 @@ __pycache__/
 *.swp
 *.swo
 .DS_Store
+*.code-workspace
 
 # Environment
+.env
 .env.local
 .env.*.local
+application-local.properties
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
 
 # Maven wrapper (opcional)
 !.mvn/wrapper/maven-wrapper.jar
+
+# OS specific
+Thumbs.db
+*.DS_Store
+
+# Generated files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Security
+*.pem
+*.key
+*.cert
+credentials.json
+secrets.json

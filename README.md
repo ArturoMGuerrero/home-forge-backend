@@ -1,6 +1,17 @@
 # HomeForge - Backend API
 
-API REST para HomeForge, un CRM para constructoras, desarrolladores inmobiliarios y equipos comerciales de vivienda.
+API REST para HomeForge, una plataforma CRM completa para inmobiliarias, constructoras, desarrolladores y equipos comerciales de vivienda.
+
+## 🎯 Características Principales
+
+- **CRM Completo**: Gestión de leads con scoring automático, pipeline Kanban, actividades y seguimiento
+- **Automatización**: Tareas automáticas, asignación inteligente de leads, recordatorios
+- **Documentos**: Generación de contratos con plantillas, firma electrónica
+- **Notificaciones**: Email, WhatsApp, Push, SMS con plantillas personalizables
+- **Calendario**: Gestión de citas, disponibilidad de agentes, recordatorios automáticos
+- **Multi-tenant**: Soporte para múltiples empresas en una sola instancia
+- **Suscripciones**: Sistema integrado con MercadoPago para pagos recurrentes
+- **API RESTful**: Endpoints bien documentados y organizados
 
 ## 🚀 Tecnologías
 

@@ -1,6 +1,11 @@
 -- V38: Sistema de Agenda y Citas
 -- Calendario interactivo, recordatorios, disponibilidad de agentes
 
+-- Drop old appointments table if exists (from V12)
+IF OBJECT_ID('dbo.appointments', 'U') IS NOT NULL
+    DROP TABLE appointments;
+GO
+
 -- Tabla de citas/appointments
 CREATE TABLE appointments (
     id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
@@ -130,27 +135,27 @@ CREATE TABLE appointment_reminders (
 );
 
 -- Índices para appointments
-CREATE INDEX idx_appointments_company ON appointments(company_id) WHERE deleted_at IS NULL;
-CREATE INDEX idx_appointments_assigned_user ON appointments(assigned_user_id) WHERE deleted_at IS NULL;
-CREATE INDEX idx_appointments_lead ON appointments(lead_id) WHERE deleted_at IS NULL;
-CREATE INDEX idx_appointments_property ON appointments(property_id) WHERE deleted_at IS NULL;
-CREATE INDEX idx_appointments_start_time ON appointments(start_time) WHERE deleted_at IS NULL;
-CREATE INDEX idx_appointments_status ON appointments(status) WHERE deleted_at IS NULL;
-CREATE INDEX idx_appointments_type ON appointments(appointment_type) WHERE deleted_at IS NULL;
-CREATE INDEX idx_appointments_date_range ON appointments(company_id, start_time, end_time) WHERE deleted_at IS NULL;
-CREATE INDEX idx_appointments_google_event ON appointments(google_calendar_event_id) WHERE google_calendar_event_id IS NOT NULL;
+CREATE INDEX idx_appointments_company ON appointments(company_id) WHERE (deleted_at IS NULL);
+CREATE INDEX idx_appointments_assigned_user ON appointments(assigned_user_id) WHERE (deleted_at IS NULL);
+CREATE INDEX idx_appointments_lead ON appointments(lead_id) WHERE (deleted_at IS NULL);
+CREATE INDEX idx_appointments_property ON appointments(property_id) WHERE (deleted_at IS NULL);
+CREATE INDEX idx_appointments_start_time ON appointments(start_time) WHERE (deleted_at IS NULL);
+CREATE INDEX idx_appointments_status ON appointments(status) WHERE (deleted_at IS NULL);
+CREATE INDEX idx_appointments_type ON appointments(appointment_type) WHERE (deleted_at IS NULL);
+CREATE INDEX idx_appointments_date_range ON appointments(company_id, start_time, end_time) WHERE (deleted_at IS NULL);
+CREATE INDEX idx_appointments_google_event ON appointments(google_calendar_event_id) WHERE (google_calendar_event_id IS NOT NULL);
 
 -- Índices para agent_availability
-CREATE INDEX idx_agent_availability_user ON agent_availability(user_id) WHERE active = 1;
-CREATE INDEX idx_agent_availability_day ON agent_availability(day_of_week) WHERE active = 1;
+CREATE INDEX idx_agent_availability_user ON agent_availability(user_id) WHERE (active = 1);
+CREATE INDEX idx_agent_availability_day ON agent_availability(day_of_week) WHERE (active = 1);
 CREATE INDEX idx_agent_availability_company ON agent_availability(company_id);
 
 -- Índices para calendar_blocks
-CREATE INDEX idx_calendar_blocks_user ON calendar_blocks(user_id) WHERE deleted_at IS NULL;
-CREATE INDEX idx_calendar_blocks_company ON calendar_blocks(company_id) WHERE deleted_at IS NULL;
-CREATE INDEX idx_calendar_blocks_date_range ON calendar_blocks(user_id, start_time, end_time) WHERE deleted_at IS NULL;
+CREATE INDEX idx_calendar_blocks_user ON calendar_blocks(user_id) WHERE (deleted_at IS NULL);
+CREATE INDEX idx_calendar_blocks_company ON calendar_blocks(company_id) WHERE (deleted_at IS NULL);
+CREATE INDEX idx_calendar_blocks_date_range ON calendar_blocks(user_id, start_time, end_time) WHERE (deleted_at IS NULL);
 
 -- Índices para appointment_reminders
 CREATE INDEX idx_appointment_reminders_appointment ON appointment_reminders(appointment_id);
-CREATE INDEX idx_appointment_reminders_scheduled ON appointment_reminders(scheduled_time, status) WHERE status = 'PENDING';
+CREATE INDEX idx_appointment_reminders_scheduled ON appointment_reminders(scheduled_time, status) WHERE (status = 'PENDING');
 CREATE INDEX idx_appointment_reminders_company ON appointment_reminders(company_id);
