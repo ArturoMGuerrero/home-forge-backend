@@ -46,7 +46,12 @@ class PropertyServiceTest {
                 2,
                 "Casa amplia y bien ubicada.",
                 "https://example.com/property.jpg",
-                true
+                true,
+                null, // ownerName
+                null, // ownerEmail
+                null, // ownerPhone
+                null, // ownerPhoneSecondary
+                null  // ownerNotes
         ));
 
         Mockito.verify(repository).save(any());
