@@ -36,15 +36,16 @@ public class MercadoPagoService {
             CompanyRepository companyRepository,
             @Value("${mercadopago.access-token}") String accessToken,
             @Value("${app.frontend.url:http://localhost:5174}") String frontendUrl,
-            @Value("${mercadopago.plan.starter.price:299}") BigDecimal starterPrice,
-            @Value("${mercadopago.plan.pro.price:999}") BigDecimal proPrice,
-            @Value("${mercadopago.plan.business.price:3999}") BigDecimal businessPrice
+            @Value("${mercadopago.plan.starter.price:299.00}") String starterPriceStr,
+            @Value("${mercadopago.plan.pro.price:999.00}") String proPriceStr,
+            @Value("${mercadopago.plan.business.price:3999.00}") String businessPriceStr
     ) {
         this.companyRepository = companyRepository;
         this.frontendUrl = frontendUrl;
-        this.starterPrice = starterPrice;
-        this.proPrice = proPrice;
-        this.businessPrice = businessPrice;
+        // Crear BigDecimal desde String para mantener precisión y escala correcta
+        this.starterPrice = new BigDecimal(starterPriceStr);
+        this.proPrice = new BigDecimal(proPriceStr);
+        this.businessPrice = new BigDecimal(businessPriceStr);
         MercadoPagoConfig.setAccessToken(accessToken);
     }
 
@@ -58,12 +59,20 @@ public class MercadoPagoService {
 
         try {
             // Crear preferencia de pago (pago único mensual)
+            // Asegurar que el precio tenga 2 decimales para Mercado Pago
+            BigDecimal priceWithDecimals = price.setScale(2, java.math.RoundingMode.HALF_UP);
+
+            System.out.println("🔍 DEBUG - Precio original: " + price);
+            System.out.println("🔍 DEBUG - Precio con decimales: " + priceWithDecimals);
+            System.out.println("🔍 DEBUG - Precio toString: " + priceWithDecimals.toString());
+            System.out.println("🔍 DEBUG - Precio toPlainString: " + priceWithDecimals.toPlainString());
+
             PreferenceItemRequest item = PreferenceItemRequest.builder()
                     .title("HomeForge - Plan " + plan.name() + " (Mensual)")
                     .description("Suscripción mensual al plan " + plan.name())
                     .quantity(1)
                     .currencyId("MXN")
-                    .unitPrice(price)
+                    .unitPrice(priceWithDecimals)
                     .build();
 
             List<PreferenceItemRequest> items = new ArrayList<>();

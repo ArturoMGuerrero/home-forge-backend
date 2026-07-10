@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(./mvnw compile *)",
+      "Bash(netstat -ano)",
+      "Bash(awk '{print $5}')",
+      "Bash(grep -v \"^4$\")",
+      "Bash(xargs -I {} taskkill //F //PID {})",
+      "Bash(./mvnw spring-boot:run)",
+      "Bash(curl -s http://localhost:8080/api/appointments)",
+      "Bash(curl -X POST http://localhost:8080/api/appointments -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(curl -s \"http://localhost:8080/api/appointments?companyId=74d93d9d-aef7-48b2-a566-10a635e18fcd\")",
+      "Bash(grep -v \"^4$\\\\|^5656$\")"
+    ]
+  }
+}

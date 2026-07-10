@@ -37,6 +37,12 @@ public record CreatePropertyRequest(
         @Min(0) @Max(100) Integer parkingSpaces,
         @Size(max = 5000) String description,
         @Size(max = 1000) String imageUrl,
-        boolean published
+        boolean published,
+        // Owner contact information
+        @Size(max = 150) String ownerName,
+        @Size(max = 100) String ownerEmail,
+        @Size(max = 20) String ownerPhone,
+        @Size(max = 20) String ownerPhoneSecondary,
+        @Size(max = 5000) String ownerNotes
 ) {
 }

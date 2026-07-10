@@ -81,6 +81,22 @@ public class Property extends AuditableEntity {
     @Column(nullable = false)
     private boolean published;
 
+    // Owner contact information
+    @Column(name = "owner_name", length = 150)
+    private String ownerName;
+
+    @Column(name = "owner_email", length = 100)
+    private String ownerEmail;
+
+    @Column(name = "owner_phone", length = 20)
+    private String ownerPhone;
+
+    @Column(name = "owner_phone_secondary", length = 20)
+    private String ownerPhoneSecondary;
+
+    @Column(name = "owner_notes", columnDefinition = "NVARCHAR(MAX)")
+    private String ownerNotes;
+
     protected Property() {
     }
 
@@ -228,5 +244,46 @@ public class Property extends AuditableEntity {
             }
             image.setSortOrder(newOrder);
         });
+    }
+
+    // Owner contact getters and setters
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+
+    public String getOwnerEmail() {
+        return ownerEmail;
+    }
+
+    public void setOwnerEmail(String ownerEmail) {
+        this.ownerEmail = ownerEmail;
+    }
+
+    public String getOwnerPhone() {
+        return ownerPhone;
+    }
+
+    public void setOwnerPhone(String ownerPhone) {
+        this.ownerPhone = ownerPhone;
+    }
+
+    public String getOwnerPhoneSecondary() {
+        return ownerPhoneSecondary;
+    }
+
+    public void setOwnerPhoneSecondary(String ownerPhoneSecondary) {
+        this.ownerPhoneSecondary = ownerPhoneSecondary;
+    }
+
+    public String getOwnerNotes() {
+        return ownerNotes;
+    }
+
+    public void setOwnerNotes(String ownerNotes) {
+        this.ownerNotes = ownerNotes;
     }
 }

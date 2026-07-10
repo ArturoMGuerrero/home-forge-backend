@@ -2,7 +2,10 @@ package com.casaflow.appointment.controller;
 
 import com.casaflow.appointment.domain.Appointment;
 import com.casaflow.appointment.domain.AppointmentStatus;
+import com.casaflow.appointment.dto.AppointmentResponse;
+import com.casaflow.appointment.dto.CreateAppointmentRequest;
 import com.casaflow.appointment.service.AppointmentService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,6 +13,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/appointments")
@@ -21,12 +25,32 @@ public class AppointmentController {
     }
 
     @PostMapping
-    public ResponseEntity<Appointment> create(@RequestBody Appointment appointment) {
-        return ResponseEntity.ok(appointmentService.create(appointment));
+    public ResponseEntity<AppointmentResponse> create(@Valid @RequestBody CreateAppointmentRequest request) {
+        Appointment appointment = new Appointment();
+        appointment.setCompanyId(request.companyId());
+        appointment.setTitle(request.title());
+        appointment.setDescription(request.description());
+        appointment.setAppointmentType(request.appointmentType());
+        appointment.setStatus(request.status() != null ? request.status() : AppointmentStatus.SCHEDULED);
+        appointment.setStartTime(request.startTime());
+        appointment.setEndTime(request.endTime());
+        appointment.setTimezone(request.timezone() != null ? request.timezone() : "America/Mexico_City");
+        appointment.setAllDay(request.allDay() != null ? request.allDay() : false);
+        appointment.setAssignedUserId(request.assignedUserId());
+        appointment.setLeadId(request.leadId());
+        appointment.setPropertyId(request.propertyId());
+        appointment.setLocationAddress(request.locationAddress());
+        appointment.setVirtualMeetingUrl(request.virtualMeetingUrl());
+        appointment.setReminderMinutes(request.reminderMinutes());
+        appointment.setNotes(request.notes());
+        appointment.setCreatedByUserId(request.createdByUserId());
+
+        Appointment created = appointmentService.create(appointment);
+        return ResponseEntity.ok(AppointmentResponse.from(created));
     }
 
     @GetMapping
-    public ResponseEntity<List<Appointment>> list(
+    public ResponseEntity<List<AppointmentResponse>> list(
             @RequestParam UUID companyId,
             @RequestParam(required = false) Long startTimestamp,
             @RequestParam(required = false) Long endTimestamp,
@@ -34,26 +58,30 @@ public class AppointmentController {
             @RequestParam(required = false) UUID leadId,
             @RequestParam(required = false) AppointmentStatus status
     ) {
+        List<Appointment> appointments;
         if (leadId != null) {
-            return ResponseEntity.ok(appointmentService.listByLead(leadId));
-        }
-        if (userId != null && startTimestamp != null && endTimestamp != null) {
+            appointments = appointmentService.listByLead(leadId);
+        } else if (userId != null && startTimestamp != null && endTimestamp != null) {
             Instant start = Instant.ofEpochMilli(startTimestamp);
             Instant end = Instant.ofEpochMilli(endTimestamp);
-            return ResponseEntity.ok(appointmentService.listByUserAndDateRange(userId, start, end));
-        }
-        if (userId != null) {
-            return ResponseEntity.ok(appointmentService.listByUser(userId));
-        }
-        if (startTimestamp != null && endTimestamp != null) {
+            appointments = appointmentService.listByUserAndDateRange(userId, start, end);
+        } else if (userId != null) {
+            appointments = appointmentService.listByUser(userId);
+        } else if (startTimestamp != null && endTimestamp != null) {
             Instant start = Instant.ofEpochMilli(startTimestamp);
             Instant end = Instant.ofEpochMilli(endTimestamp);
-            return ResponseEntity.ok(appointmentService.listByDateRange(companyId, start, end));
+            appointments = appointmentService.listByDateRange(companyId, start, end);
+        } else if (status != null) {
+            appointments = appointmentService.listByStatus(companyId, status);
+        } else {
+            appointments = appointmentService.listByCompany(companyId);
         }
-        if (status != null) {
-            return ResponseEntity.ok(appointmentService.listByStatus(companyId, status));
-        }
-        return ResponseEntity.ok(appointmentService.listByCompany(companyId));
+
+        return ResponseEntity.ok(
+            appointments.stream()
+                .map(AppointmentResponse::from)
+                .collect(Collectors.toList())
+        );
     }
 
     @GetMapping("/{id}")

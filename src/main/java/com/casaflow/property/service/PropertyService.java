@@ -29,13 +29,19 @@ public class PropertyService {
     public Property create(CreatePropertyRequest request) {
         subscriptionValidator.validateActiveSubscription(request.companyId(), "crear nuevas propiedades");
         validateStatus(request.listingType(), request.status());
-        return repository.save(new Property(
+        Property property = new Property(
                 request.companyId(), request.code(), request.title(), request.propertyType(),
                 request.listingType(), request.status(), request.price(), request.currencyCode(), request.countryCode(),
                 request.stateCode(), request.city(), request.address(), request.latitude(), request.longitude(),
                 request.bedrooms(), request.bathrooms(), request.landArea(), request.constructionArea(),
                 request.parkingSpaces(), request.description(), request.imageUrl(), request.published()
-        ));
+        );
+        property.setOwnerName(request.ownerName());
+        property.setOwnerEmail(request.ownerEmail());
+        property.setOwnerPhone(request.ownerPhone());
+        property.setOwnerPhoneSecondary(request.ownerPhoneSecondary());
+        property.setOwnerNotes(request.ownerNotes());
+        return repository.save(property);
     }
 
     public List<Property> byCompany(UUID companyId) {
@@ -62,6 +68,11 @@ public class PropertyService {
                 request.landArea(), request.constructionArea(), request.parkingSpaces(),
                 request.description(), request.imageUrl(), request.published()
         );
+        property.setOwnerName(request.ownerName());
+        property.setOwnerEmail(request.ownerEmail());
+        property.setOwnerPhone(request.ownerPhone());
+        property.setOwnerPhoneSecondary(request.ownerPhoneSecondary());
+        property.setOwnerNotes(request.ownerNotes());
         return repository.save(property);
     }
 
