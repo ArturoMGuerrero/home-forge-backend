@@ -48,6 +48,12 @@ public class PropertyService {
         return repository.findByCompanyIdAndDeletedAtIsNull(companyId);
     }
 
+    public List<Property> getPropertiesWithOwnerContact(UUID companyId) {
+        return repository.findByCompanyIdAndDeletedAtIsNull(companyId).stream()
+                .filter(p -> p.getOwnerEmail() != null || p.getOwnerPhone() != null)
+                .toList();
+    }
+
     public List<Property> published() {
         return repository.findByPublishedTrueAndDeletedAtIsNullOrderByCreatedAtDesc();
     }

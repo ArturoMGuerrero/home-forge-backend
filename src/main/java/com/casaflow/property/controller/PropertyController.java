@@ -2,6 +2,7 @@ package com.casaflow.property.controller;
 
 import com.casaflow.property.domain.Property;
 import com.casaflow.property.dto.CreatePropertyRequest;
+import com.casaflow.property.dto.PropertyOwnerDto;
 import com.casaflow.property.dto.PublicPropertyResponse;
 import com.casaflow.property.dto.ReorderImagesRequest;
 import com.casaflow.property.service.PropertyService;
@@ -39,6 +40,21 @@ public class PropertyController {
     @GetMapping
     public List<Property> list(@RequestParam UUID companyId) {
         return service.byCompany(companyId);
+    }
+
+    @GetMapping("/owners")
+    public List<PropertyOwnerDto> getOwnersWithContact(@RequestParam UUID companyId) {
+        return service.getPropertiesWithOwnerContact(companyId).stream()
+                .map(p -> new PropertyOwnerDto(
+                        p.getId(),
+                        p.getCode(),
+                        p.getTitle(),
+                        p.getOwnerName(),
+                        p.getOwnerEmail(),
+                        p.getOwnerPhone(),
+                        p.getOwnerPhoneSecondary()
+                ))
+                .toList();
     }
 
     @GetMapping("/public")

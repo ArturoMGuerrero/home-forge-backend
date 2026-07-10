@@ -7,5 +7,8 @@ public enum MessageTemplateCategory {
     PAYMENT,
     GENERAL,
     TASK_REMINDER,
-    PROPERTY_ALERT
+    PROPERTY_ALERT,
+    OWNER_COMMUNICATION,
+    OWNER_FOLLOWUP,
+    PROPERTY_INQUIRY
 }
