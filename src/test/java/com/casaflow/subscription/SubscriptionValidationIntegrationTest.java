@@ -144,7 +144,11 @@ class SubscriptionValidationIntegrationTest {
             "Hermosa casa",
             null,
             true,
-            null, null, null, null, null
+            null, // ownerName
+            null, // ownerEmail
+            null, // ownerPhone
+            null, // ownerPhoneSecondary
+            null  // ownerNotes
         );
 
         assertDoesNotThrow(() -> propertyService.create(request));
@@ -175,7 +179,11 @@ class SubscriptionValidationIntegrationTest {
             "Departamento moderno",
             null,
             true,
-            null, null, null, null, null
+            null, // ownerName
+            null, // ownerEmail
+            null, // ownerPhone
+            null, // ownerPhoneSecondary
+            null  // ownerNotes
         );
 
         assertDoesNotThrow(() -> propertyService.create(request));
@@ -205,7 +213,12 @@ class SubscriptionValidationIntegrationTest {
             0,
             "Local comercial",
             null,
-            false
+            false,
+            null, // ownerName
+            null, // ownerEmail
+            null, // ownerPhone
+            null, // ownerPhoneSecondary
+            null  // ownerNotes
         );
 
         SubscriptionExpiredException exception = assertThrows(
@@ -275,7 +288,12 @@ class SubscriptionValidationIntegrationTest {
             0,
             "Terreno plano",
             null,
-            false
+            false,
+            null, // ownerName
+            null, // ownerEmail
+            null, // ownerPhone
+            null, // ownerPhoneSecondary
+            null  // ownerNotes
         );
 
         assertThrows(
