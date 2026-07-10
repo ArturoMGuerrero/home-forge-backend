@@ -143,7 +143,8 @@ class SubscriptionValidationIntegrationTest {
             2,
             "Hermosa casa",
             null,
-            true
+            true,
+            null, null, null, null, null
         );
 
         assertDoesNotThrow(() -> propertyService.create(request));
