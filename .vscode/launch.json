@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "HomeForge Backend",
+      "request": "launch",
+      "mainClass": "com.casaflow.CasaFlowApplication",
+      "projectName": "casaflow-backend",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "preLaunchTask": "Start PostgreSQL",
+      "console": "integratedTerminal"
+    }
+  ]
+}
