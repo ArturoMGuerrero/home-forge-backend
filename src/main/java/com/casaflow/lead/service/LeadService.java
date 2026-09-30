@@ -51,7 +51,9 @@ public class LeadService {
     }
 
     Lead saved = repo.save(lead);
-    scoringService.calculateScore(saved.getId(), saved.getCompanyId());
+    Lead persisted = saved != null ? saved : lead;
+    followUpAutomationService.createInitialTask(persisted);
+    scoringService.calculateScore(persisted.getId(), persisted.getCompanyId());
     return saved;
   }
   public List<Lead> byCompany(UUID companyId){ return repo.findByCompanyIdAndDeletedAtIsNullOrderByCreatedAtDesc(companyId); }

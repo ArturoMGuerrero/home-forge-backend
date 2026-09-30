@@ -2,6 +2,7 @@ package com.casaflow.shared.exception;
 
 import com.casaflow.auth.exception.EmailAlreadyExistsException;
 import com.casaflow.auth.exception.InvalidCredentialsException;
+import com.casaflow.auth.exception.InvalidPasswordResetTokenException;
 import com.casaflow.subscription.exception.SubscriptionExpiredException;
 import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -23,6 +24,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler(InvalidCredentialsException.class)
     ResponseEntity<Map<String, String>> invalidCredentials(InvalidCredentialsException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidPasswordResetTokenException.class)
+    ResponseEntity<Map<String, String>> invalidPasswordResetToken(InvalidPasswordResetTokenException ex) {
+        return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

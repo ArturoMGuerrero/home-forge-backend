@@ -3,16 +3,30 @@ package com.casaflow.auth.service;
 import com.casaflow.auth.dto.AuthResponse;
 import com.casaflow.auth.dto.LoginRequest;
 import com.casaflow.auth.dto.RegisterRequest;
+import com.casaflow.auth.domain.PasswordResetToken;
 import com.casaflow.auth.exception.EmailAlreadyExistsException;
 import com.casaflow.auth.exception.InvalidCredentialsException;
+import com.casaflow.auth.exception.InvalidPasswordResetTokenException;
+import com.casaflow.auth.repository.PasswordResetTokenRepository;
 import com.casaflow.company.domain.Company;
 import com.casaflow.company.repository.CompanyRepository;
 import com.casaflow.user.domain.User;
 import com.casaflow.user.repository.UserRepository;
+import com.casaflow.notification.service.EmailService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Base64;
+import java.util.HexFormat;
 import java.util.Locale;
 
 @Service
@@ -21,15 +35,25 @@ public class AuthService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
+    private final String frontendUrl;
+    private final SecureRandom secureRandom = new SecureRandom();
 
     public AuthService(
             UserRepository userRepository,
             CompanyRepository companyRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            PasswordResetTokenRepository passwordResetTokenRepository,
+            EmailService emailService,
+            @Value("${app.frontend-url:http://localhost:5173}") String frontendUrl
     ) {
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
         this.passwordEncoder = passwordEncoder;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.emailService = emailService;
+        this.frontendUrl = frontendUrl.replaceAll("/$", "");
     }
 
     @Transactional
@@ -79,13 +103,53 @@ public class AuthService {
     }
 
     @Transactional
-    public void resetPassword(String email, String newPassword) {
-        String normalizedEmail = normalizeEmail(email);
-        User user = userRepository.findByEmailIgnoreCase(normalizedEmail)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con email: " + normalizedEmail));
+    public void requestPasswordReset(String email) {
+        userRepository.findByEmailIgnoreCaseAndDeletedAtIsNull(normalizeEmail(email)).ifPresent(user -> {
+            boolean recentlyRequested = passwordResetTokenRepository.findTopByUserIdOrderByCreatedAtDesc(user.getId())
+                    .map(existing -> existing.getCreatedAt().isAfter(Instant.now().minus(1, ChronoUnit.MINUTES)))
+                    .orElse(false);
+            if (recentlyRequested) {
+                return;
+            }
+            passwordResetTokenRepository.deleteByUserId(user.getId());
+            byte[] tokenBytes = new byte[32];
+            secureRandom.nextBytes(tokenBytes);
+            String rawToken = Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
+            passwordResetTokenRepository.save(new PasswordResetToken(
+                    user.getId(), hashToken(rawToken), Instant.now().plus(30, ChronoUnit.MINUTES)
+            ));
+            try {
+                emailService.sendPasswordReset(
+                        user.getEmail(), frontendUrl + "/restablecer-contraseña?token=" + rawToken
+                );
+            } catch (MailException ignored) {
+                // Mantener respuesta neutral para no revelar si el correo está registrado.
+            }
+        });
+    }
 
+    @Transactional
+    public void resetPassword(String rawToken, String newPassword) {
+        Instant now = Instant.now();
+        PasswordResetToken token = passwordResetTokenRepository.findByTokenHash(hashToken(rawToken))
+                .filter(candidate -> candidate.isUsableAt(now))
+                .orElseThrow(InvalidPasswordResetTokenException::new);
+        User user = userRepository.findById(token.getUserId())
+                .filter(User::isActive)
+                .orElseThrow(InvalidPasswordResetTokenException::new);
         user.setPasswordHash(passwordEncoder.encode(newPassword));
+        token.markUsed(now);
         userRepository.save(user);
+        passwordResetTokenRepository.save(token);
+    }
+
+    private static String hashToken(String token) {
+        try {
+            byte[] hash = MessageDigest.getInstance("SHA-256").digest(token.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(hash);
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 is not available", exception);
+        }
     }
 
     private static AuthResponse response(User user, Company company) {

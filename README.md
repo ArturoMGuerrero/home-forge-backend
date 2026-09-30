@@ -2,6 +2,33 @@
 
 API REST para HomeForge, una plataforma CRM completa para inmobiliarias, constructoras, desarrolladores y equipos comerciales de vivienda.
 
+## Ejecutar con Rancher Desktop
+
+El proyecto usa PostgreSQL en contenedor; no requiere instalar una base de datos en Windows.
+
+1. Abre Rancher Desktop y selecciona `Moby (dockerd)` como Container Engine.
+2. Copia `.env.example` a `.env` y cambia, como mínimo, `DB_PASSWORD`.
+3. Desde esta carpeta ejecuta:
+
+```powershell
+docker compose up --build -d
+docker compose ps
+docker compose logs -f backend
+```
+
+El frontend queda en `http://localhost:5174`, el backend en
+`http://localhost:8080` y PostgreSQL en `localhost:5432`.
+Los datos persisten en los volúmenes `casaflow_postgres_data` y
+`casaflow_uploads_data`.
+
+Para detener los servicios sin borrar datos:
+
+```powershell
+docker compose down
+```
+
+No uses `docker compose down -v` salvo que quieras eliminar también la base de datos.
+
 ## 🎯 Características Principales
 
 - **CRM Completo**: Gestión de leads con scoring automático, pipeline Kanban, actividades y seguimiento

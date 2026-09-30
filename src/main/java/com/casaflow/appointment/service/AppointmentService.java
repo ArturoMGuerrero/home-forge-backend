@@ -3,6 +3,7 @@ package com.casaflow.appointment.service;
 import com.casaflow.appointment.domain.Appointment;
 import com.casaflow.appointment.domain.AppointmentStatus;
 import com.casaflow.appointment.repository.AppointmentRepository;
+import com.casaflow.lead.service.FollowUpAutomationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,9 +14,11 @@ import java.util.UUID;
 @Service
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
+    private final FollowUpAutomationService followUpAutomationService;
 
-    public AppointmentService(AppointmentRepository appointmentRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository, FollowUpAutomationService followUpAutomationService) {
         this.appointmentRepository = appointmentRepository;
+        this.followUpAutomationService = followUpAutomationService;
     }
 
     @Transactional
@@ -57,6 +60,7 @@ public class AppointmentService {
     @Transactional
     public Appointment update(UUID id, Appointment updates) {
         Appointment existing = findById(id);
+        AppointmentStatus previousStatus = existing.getStatus();
         if (updates.getTitle() != null) existing.setTitle(updates.getTitle());
         if (updates.getDescription() != null) existing.setDescription(updates.getDescription());
         if (updates.getAppointmentType() != null) existing.setAppointmentType(updates.getAppointmentType());
@@ -76,7 +80,9 @@ public class AppointmentService {
         if (updates.getOutcome() != null) existing.setOutcome(updates.getOutcome());
         if (updates.getFollowUpRequired() != null) existing.setFollowUpRequired(updates.getFollowUpRequired());
         existing.setUpdatedAt(Instant.now());
-        return appointmentRepository.save(existing);
+        Appointment saved = appointmentRepository.save(existing);
+        createPostVisitFollowUp(previousStatus, saved);
+        return saved;
     }
 
     @Transactional
@@ -89,9 +95,18 @@ public class AppointmentService {
     @Transactional
     public Appointment updateStatus(UUID id, AppointmentStatus status) {
         Appointment appointment = findById(id);
+        AppointmentStatus previousStatus = appointment.getStatus();
         appointment.setStatus(status);
         appointment.setUpdatedAt(Instant.now());
-        return appointmentRepository.save(appointment);
+        Appointment saved = appointmentRepository.save(appointment);
+        createPostVisitFollowUp(previousStatus, saved);
+        return saved;
+    }
+
+    private void createPostVisitFollowUp(AppointmentStatus previousStatus, Appointment appointment) {
+        if (previousStatus != AppointmentStatus.COMPLETED && appointment.getStatus() == AppointmentStatus.COMPLETED && appointment.getLeadId() != null) {
+            followUpAutomationService.createPostVisitTask(appointment.getLeadId(), appointment.getCompanyId());
+        }
     }
 
     @Transactional

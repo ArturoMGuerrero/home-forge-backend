@@ -33,6 +33,10 @@ public class FollowUpTaskService {
         ));
     }
 
+    public boolean existsForLeadAndTitle(UUID leadId, String title) {
+        return repository.existsByLeadIdAndTitleAndDeletedAtIsNull(leadId, title);
+    }
+
     public List<FollowUpTask> listByCompany(UUID companyId) {
         return repository.findByCompanyIdAndDeletedAtIsNullOrderByScheduledForAsc(companyId);
     }

@@ -36,16 +36,22 @@ public class MercadoPagoService {
             CompanyRepository companyRepository,
             @Value("${mercadopago.access-token}") String accessToken,
             @Value("${app.frontend.url:http://localhost:5174}") String frontendUrl,
-            @Value("${mercadopago.plan.starter.price:299.00}") String starterPriceStr,
-            @Value("${mercadopago.plan.pro.price:999.00}") String proPriceStr,
-            @Value("${mercadopago.plan.business.price:3999.00}") String businessPriceStr
+            @Value("${mercadopago.plan.starter.price:299}") String starterPriceStr,
+            @Value("${mercadopago.plan.pro.price:999}") String proPriceStr,
+            @Value("${mercadopago.plan.business.price:3999}") String businessPriceStr
     ) {
         this.companyRepository = companyRepository;
         this.frontendUrl = frontendUrl;
-        // Crear BigDecimal desde String para mantener precisión y escala correcta
+        // Crear BigDecimal desde String - los precios ya vienen en pesos
         this.starterPrice = new BigDecimal(starterPriceStr);
         this.proPrice = new BigDecimal(proPriceStr);
         this.businessPrice = new BigDecimal(businessPriceStr);
+
+        System.out.println("💰 Precios configurados:");
+        System.out.println("   STARTER: $" + this.starterPrice + " MXN");
+        System.out.println("   PRO: $" + this.proPrice + " MXN");
+        System.out.println("   BUSINESS: $" + this.businessPrice + " MXN");
+
         MercadoPagoConfig.setAccessToken(accessToken);
     }
 

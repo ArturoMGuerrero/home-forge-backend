@@ -29,6 +29,46 @@ public class FollowUpAutomationService {
     @Transactional
     public void createAutomatedFollowUpTasks() {
         followUpTaskService.markOverdueTasks();
+        createNoResponseTasks();
+    }
+
+    public void createInitialTask(Lead lead) {
+        createFollowUpTask(
+            lead,
+            "Primer contacto",
+            "Contactar al prospecto nuevo y registrar el resultado",
+            FollowUpTaskType.CALL,
+            0,
+            FollowUpTaskPriority.HIGH
+        );
+    }
+
+    public void createPostVisitTask(UUID leadId, UUID companyId) {
+        Lead lead = leadRepository.findByIdAndCompanyIdAndDeletedAtIsNull(leadId, companyId).orElse(null);
+        if (lead == null) return;
+        createFollowUpTask(
+            lead,
+            "Seguimiento post-visita",
+            "Solicitar comentarios sobre la visita y acordar el siguiente paso",
+            FollowUpTaskType.FOLLOW_UP,
+            1,
+            FollowUpTaskPriority.HIGH
+        );
+    }
+
+    private void createNoResponseTasks() {
+        Instant cutoff = Instant.now().minus(24, ChronoUnit.HOURS);
+        List<Lead> unattendedLeads = leadRepository.findByStatusAndCreatedAtBeforeAndDeletedAtIsNull(LeadStatus.NEW, cutoff);
+        for (Lead lead : unattendedLeads) {
+            createFollowUpTask(
+                lead,
+                "Prospecto sin respuesta por 24 horas",
+                "El prospecto continúa como nuevo. Contactarlo o actualizar su estado.",
+                FollowUpTaskType.FOLLOW_UP,
+                0,
+                FollowUpTaskPriority.URGENT
+            );
+        }
     }
 
     public void createTasksForStatusChange(UUID leadId, UUID companyId, LeadStatus oldStatus, LeadStatus newStatus) {
@@ -97,7 +137,14 @@ public class FollowUpAutomationService {
         int daysFromNow,
         FollowUpTaskPriority priority
     ) {
+        if (followUpTaskService.existsForLeadAndTitle(lead.getId(), title)) return;
         Instant scheduledFor = Instant.now().plus(daysFromNow, ChronoUnit.DAYS);
+
+        UUID assignedUserId = null;
+        if (lead.getAssignedTo() != null && !lead.getAssignedTo().isBlank()) {
+            try { assignedUserId = UUID.fromString(lead.getAssignedTo()); }
+            catch (IllegalArgumentException ignored) { }
+        }
 
         CreateFollowUpTaskRequest request = new CreateFollowUpTaskRequest(
             lead.getCompanyId(),
@@ -106,7 +153,7 @@ public class FollowUpAutomationService {
             description,
             taskType,
             scheduledFor,
-            null,
+            assignedUserId,
             priority
         );
 

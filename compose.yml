@@ -1,0 +1,59 @@
+name: casaflow
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-casaflow}
+      POSTGRES_USER: ${DB_USERNAME:-casaflow}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-casaflow_local}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-casaflow}
+      DB_USERNAME: ${DB_USERNAME:-casaflow}
+      DB_PASSWORD: ${DB_PASSWORD:-casaflow_local}
+      SERVER_PORT: 8080
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174}
+      UPLOADS_DIRECTORY: /app/uploads
+      MERCADOPAGO_ACCESS_TOKEN: ${MERCADOPAGO_ACCESS_TOKEN:-}
+      MERCADOPAGO_PUBLIC_KEY: ${MERCADOPAGO_PUBLIC_KEY:-}
+      PLAN_PRO_PRICE: ${PLAN_PRO_PRICE:-99900}
+      PLAN_BUSINESS_PRICE: ${PLAN_BUSINESS_PRICE:-399900}
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../home-forge-frontend
+      dockerfile: ../home-forge-backend/Dockerfile.frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-5174}:80"
+    depends_on:
+      backend:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  uploads_data:

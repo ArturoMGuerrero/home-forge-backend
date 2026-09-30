@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface FollowUpTaskRepository extends JpaRepository<FollowUpTask, UUID> {
+    boolean existsByLeadIdAndTitleAndDeletedAtIsNull(UUID leadId, String title);
     List<FollowUpTask> findByCompanyIdAndDeletedAtIsNullOrderByScheduledForAsc(UUID companyId);
 
     List<FollowUpTask> findByLeadIdAndCompanyIdAndDeletedAtIsNullOrderByScheduledForAsc(UUID leadId, UUID companyId);

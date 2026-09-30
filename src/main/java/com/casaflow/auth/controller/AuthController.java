@@ -3,7 +3,8 @@ package com.casaflow.auth.controller;
 import com.casaflow.auth.dto.AuthResponse;
 import com.casaflow.auth.dto.LoginRequest;
 import com.casaflow.auth.dto.RegisterRequest;
-import com.casaflow.auth.dto.ResetPasswordRequest;
+import com.casaflow.auth.dto.ConfirmPasswordResetRequest;
+import com.casaflow.auth.dto.RequestPasswordResetRequest;
 import com.casaflow.auth.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -36,13 +37,13 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
-        service.resetPassword(request.email(), request.newPassword());
+    public void resetPassword(@Valid @RequestBody ConfirmPasswordResetRequest request) {
+        service.resetPassword(request.token(), request.newPassword());
     }
 
     @PostMapping("/request-password-reset")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void requestPasswordReset(@Valid @RequestBody ResetPasswordRequest request) {
-        service.resetPassword(request.email(), request.newPassword());
+    public void requestPasswordReset(@Valid @RequestBody RequestPasswordResetRequest request) {
+        service.requestPasswordReset(request.email());
     }
 }

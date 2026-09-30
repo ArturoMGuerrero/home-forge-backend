@@ -1,6 +1,4 @@
 spring:
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:sqlserver}
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/casaflow}
     username: ${DB_USERNAME:casaflow}
@@ -13,6 +11,7 @@ spring:
         format_sql: true
   flyway:
     enabled: true
+    locations: classpath:db/migration
   servlet:
     multipart:
       max-file-size: 8MB
@@ -27,10 +26,12 @@ app:
     directory: ${UPLOADS_DIRECTORY:uploads}
 
 mercadopago:
-  access-token: ${MERCADOPAGO_ACCESS_TOKEN}
-  public-key: ${MERCADOPAGO_PUBLIC_KEY}
+  access-token: ${MERCADOPAGO_ACCESS_TOKEN:}
+  public-key: ${MERCADOPAGO_PUBLIC_KEY:}
   plan:
+    starter:
+      price: ${PLAN_STARTER_PRICE:299}
     pro:
-      price: ${PLAN_PRO_PRICE:29900}
+      price: ${PLAN_PRO_PRICE:999}
     business:
-      price: ${PLAN_BUSINESS_PRICE:59900}
+      price: ${PLAN_BUSINESS_PRICE:3999}

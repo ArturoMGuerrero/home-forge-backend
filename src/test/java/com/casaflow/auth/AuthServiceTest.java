@@ -5,10 +5,12 @@ import com.casaflow.auth.dto.LoginRequest;
 import com.casaflow.auth.dto.RegisterRequest;
 import com.casaflow.auth.exception.InvalidCredentialsException;
 import com.casaflow.auth.service.AuthService;
+import com.casaflow.auth.repository.PasswordResetTokenRepository;
 import com.casaflow.company.domain.Company;
 import com.casaflow.company.repository.CompanyRepository;
 import com.casaflow.user.domain.User;
 import com.casaflow.user.repository.UserRepository;
+import com.casaflow.notification.service.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -40,7 +42,14 @@ class AuthServiceTest {
         userRepository = mock(UserRepository.class);
         companyRepository = mock(CompanyRepository.class);
         passwordEncoder = new BCryptPasswordEncoder();
-        service = new AuthService(userRepository, companyRepository, passwordEncoder);
+        service = new AuthService(
+                userRepository,
+                companyRepository,
+                passwordEncoder,
+                mock(PasswordResetTokenRepository.class),
+                mock(EmailService.class),
+                "http://localhost:5173"
+        );
     }
 
     @Test
