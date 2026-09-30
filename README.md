@@ -18,8 +18,8 @@ docker compose logs -f backend
 
 El frontend queda en `http://localhost:5174`, el backend en
 `http://localhost:8080` y PostgreSQL en `localhost:5432`.
-Los datos persisten en los volúmenes `casaflow_postgres_data` y
-`casaflow_uploads_data`.
+Los datos persisten en los volúmenes `homeforge_postgres_data` y
+`homeforge_uploads_data`.
 
 Para detener los servicios sin borrar datos:
 
@@ -42,7 +42,7 @@ No uses `docker compose down -v` salvo que quieras eliminar también la base de 
 
 ## 🚀 Tecnologías
 
-- **Framework**: Spring Boot 3.3.5
+- **Framework**: Spring Boot 4.1.1
 - **Lenguaje**: Java 21
 - **Base de datos**: PostgreSQL, H2 (desarrollo) o SQL Server
 - **ORM**: Spring Data JPA + Hibernate
@@ -108,7 +108,7 @@ start-h2.cmd
 
 **Consola H2**: http://localhost:8080/h2-console
 
-- JDBC URL: `jdbc:h2:file:./data/casaflow`
+- JDBC URL: `jdbc:h2:file:./data/homeforge`
 - Usuario: `sa`
 - Password: (vacío)
 
@@ -305,12 +305,12 @@ Reporte de cobertura: `target/site/jacoco/index.html`
 mvnw clean package -DskipTests
 ```
 
-El JAR se generará en: `target/casaflow-backend-0.1.0.jar`
+El JAR se generará en: `target/homeforge-backend-0.1.0.jar`
 
 ### Ejecutar JAR
 
 ```bash
-java -jar target/casaflow-backend-0.1.0.jar
+java -jar target/homeforge-backend-0.1.0.jar
 ```
 
 ## 🔐 Autenticación
@@ -381,7 +381,7 @@ HomeForge-backend/
 ├── src/
 │   ├── main/
 │   │   ├── java/
-│   │   │   └── com/casaflow/
+│   │   │   └── com/homeforge/
 │   │   │       ├── controller/    # REST Controllers
 │   │   │       ├── service/       # Lógica de negocio
 │   │   │       ├── repository/    # JPA Repositories

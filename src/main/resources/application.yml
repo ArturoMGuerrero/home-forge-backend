@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/casaflow}
-    username: ${DB_USERNAME:casaflow}
-    password: ${DB_PASSWORD:casaflow}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/homeforge}
+    username: ${DB_USERNAME:homeforge}
+    password: ${DB_PASSWORD:homeforge}
   jpa:
     hibernate:
       ddl-auto: validate
