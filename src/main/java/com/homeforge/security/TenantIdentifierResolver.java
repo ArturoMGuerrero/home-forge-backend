@@ -20,6 +20,9 @@ public class TenantIdentifierResolver implements CurrentTenantIdentifierResolver
 
     @Override
     public UUID resolveCurrentTenantIdentifier() {
+        if (PublicEndpoints.isCurrentRequestPublic()) {
+            return ROOT;
+        }
         return CurrentUser.get().map(CurrentUser::companyId).orElse(ROOT);
     }
 
