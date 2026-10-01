@@ -4,6 +4,7 @@ import com.homeforge.auth.exception.EmailAlreadyExistsException;
 import com.homeforge.billing.BillingException;
 import com.homeforge.auth.exception.InvalidCredentialsException;
 import com.homeforge.auth.exception.InvalidPasswordResetTokenException;
+import com.homeforge.auth.exception.TooManyAttemptsException;
 import com.homeforge.subscription.exception.SubscriptionExpiredException;
 import org.springframework.http.*;
 import org.springframework.security.access.AccessDeniedException;
@@ -53,5 +54,12 @@ public class ApiExceptionHandler {
     @ExceptionHandler(BillingException.class)
     ResponseEntity<Map<String, String>> billing(BillingException ex) {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(TooManyAttemptsException.class)
+    ResponseEntity<Map<String, String>> tooManyAttempts(TooManyAttemptsException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(HttpHeaders.RETRY_AFTER, String.valueOf(Math.max(1, ex.getRetryAfter().toSeconds())))
+                .body(Map.of("error", ex.getMessage()));
     }
 }
