@@ -36,6 +36,9 @@ public class Company extends AuditableEntity {
     @Column(length=50) private String paymentMethod;
     private Instant lastPaymentAt;
     @Column(length=50) private String lastPaymentStatus;
+    @Column(name="stripe_customer_id", length=100) private String stripeCustomerId;
+    @Column(name="stripe_subscription_id", length=100) private String stripeSubscriptionId;
+    @Column(nullable=false) private boolean cancelAtPeriodEnd = false;
     protected Company() {}
     public Company(String name, String countryCode, String stateCode, String defaultCurrency, String timezone) {
         this.name = name; this.countryCode = countryCode; this.stateCode = stateCode; this.defaultCurrency = defaultCurrency; this.timezone = timezone;
@@ -99,9 +102,29 @@ public class Company extends AuditableEntity {
     public String getPaymentMethod() { return paymentMethod; }
     public Instant getLastPaymentAt() { return lastPaymentAt; }
     public String getLastPaymentStatus() { return lastPaymentStatus; }
+    public String getStripeCustomerId() { return stripeCustomerId; }
+    public String getStripeSubscriptionId() { return stripeSubscriptionId; }
+    public boolean isCancelAtPeriodEnd() { return cancelAtPeriodEnd; }
 
-    public void changePlan(PlanCode planCode) {
-        this.planCode = planCode;
+    public void linkStripeCustomer(String stripeCustomerId) {
+        this.stripeCustomerId = stripeCustomerId;
+    }
+
+    /** Refleja en la empresa el estado de su suscripción en el proveedor de pagos (lo dicta el proveedor, no el cliente). */
+    public void applyBillingSubscription(String provider, String subscriptionId, PlanCode planCode, String status,
+                                         Instant currentPeriodEnd, boolean cancelAtPeriodEnd) {
+        this.paymentMethod = provider;
+        this.stripeSubscriptionId = subscriptionId;
+        if (planCode != null) {
+            this.planCode = planCode;
+        }
+        this.subscriptionStatus = status;
+        this.nextBillingAt = currentPeriodEnd;
+        this.cancelAtPeriodEnd = cancelAtPeriodEnd;
+    }
+
+    public void recordPayment(String provider, String paymentStatus) {
+        updatePaymentInfo(provider, paymentStatus);
     }
 
     public void setMercadoPagoCustomerId(String mercadoPagoCustomerId) {

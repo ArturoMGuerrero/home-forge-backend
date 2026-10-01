@@ -15,25 +15,30 @@ public record SubscriptionResponse(
         Instant trialEndsAt,
         long trialDaysRemaining,
         Instant nextBillingAt,
-        boolean paymentConfigured
+        boolean paymentConfigured,
+        String paymentProvider,
+        boolean cancelAtPeriodEnd
 ) {
     public static SubscriptionResponse from(Company company) {
         Instant now = Instant.now();
         long days = company.getTrialEndsAt() == null || !company.getTrialEndsAt().isAfter(now)
                 ? 0
                 : Math.max(1, (long) Math.ceil(Duration.between(now, company.getTrialEndsAt()).toMinutes() / 1440.0));
-        boolean hasPayment = company.getMercadoPagoSubscriptionId() != null
+        boolean hasPayment = company.getStripeSubscriptionId() != null
+                || company.getMercadoPagoSubscriptionId() != null
                 || company.getLastPaymentAt() != null;
         return new SubscriptionResponse(
                 company.getId(),
                 company.getPlanCode().name(),
                 company.getPlanCode().getUserLimit(),
-                company.getSubscriptionStatus(),
+                company.getComputedSubscriptionStatus(),
                 company.getTrialStartedAt(),
                 company.getTrialEndsAt(),
                 days,
                 company.getNextBillingAt(),
-                hasPayment
+                hasPayment,
+                company.getPaymentMethod(),
+                company.isCancelAtPeriodEnd()
         );
     }
 }

@@ -47,13 +47,13 @@ public class SecurityConfig {
                         // Sitio público
                         .requestMatchers(HttpMethod.GET, "/api/properties/public", "/api/properties/public/**",
                                 "/api/companies/public/**", "/api/catalogs", "/api/catalogs/**", "/uploads/**").permitAll()
-                        // Avisos de Mercado Pago (servidor a servidor)
-                        .requestMatchers(HttpMethod.POST, "/api/webhooks/mercadopago").permitAll()
+                        // Avisos de los proveedores de pago (servidor a servidor; cada uno valida su firma)
+                        .requestMatchers(HttpMethod.POST, "/api/webhooks/mercadopago", "/api/webhooks/stripe").permitAll()
                         // Administración de la empresa: solo administradores
                         .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/users/*", "/api/users/*/status", "/api/users/*/role").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/companies/*", "/api/companies/*/subscription").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/payments/subscriptions").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/companies/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/payments/subscriptions", "/api/billing/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/teams", "/api/teams/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/teams/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/assignment-rules").hasRole("ADMIN")
