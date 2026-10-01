@@ -1,6 +1,7 @@
 package com.homeforge.shared.exception;
 
 import com.homeforge.auth.exception.EmailAlreadyExistsException;
+import com.homeforge.billing.BillingException;
 import com.homeforge.auth.exception.InvalidCredentialsException;
 import com.homeforge.auth.exception.InvalidPasswordResetTokenException;
 import com.homeforge.subscription.exception.SubscriptionExpiredException;
@@ -47,5 +48,10 @@ public class ApiExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     ResponseEntity<Map<String, String>> accessDenied(AccessDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(BillingException.class)
+    ResponseEntity<Map<String, String>> billing(BillingException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of("error", ex.getMessage()));
     }
 }

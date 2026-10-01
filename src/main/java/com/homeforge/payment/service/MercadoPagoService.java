@@ -35,7 +35,7 @@ public class MercadoPagoService {
     public MercadoPagoService(
             CompanyRepository companyRepository,
             @Value("${mercadopago.access-token}") String accessToken,
-            @Value("${app.frontend.url:http://localhost:5174}") String frontendUrl,
+            @Value("${app.frontend-url:http://localhost:5174}") String frontendUrl,
             @Value("${mercadopago.plan.starter.price:299}") String starterPriceStr,
             @Value("${mercadopago.plan.pro.price:999}") String proPriceStr,
             @Value("${mercadopago.plan.business.price:3999}") String businessPriceStr

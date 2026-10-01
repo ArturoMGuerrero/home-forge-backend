@@ -38,6 +38,25 @@ Los datos persisten en los volúmenes `homeforge_postgres_data` y `homeforge_upl
 `docker compose down` detiene los servicios sin borrar datos; no uses `docker compose down -v`
 salvo que quieras eliminar también la base de datos.
 
+### Pagos con Stripe (modo de prueba)
+
+1. Pon `STRIPE_SECRET_KEY` y `STRIPE_PUBLISHABLE_KEY` del sandbox en `.env`.
+2. Con el [Stripe CLI](https://docs.stripe.com/stripe-cli), obtén el secreto de los webhooks y guárdalo como `STRIPE_WEBHOOK_SECRET`:
+
+   ```powershell
+   stripe listen --api-key $env:STRIPE_SECRET_KEY --print-secret
+   ```
+
+3. Deja corriendo el reenvío de eventos mientras pruebas:
+
+   ```powershell
+   stripe listen --api-key $env:STRIPE_SECRET_KEY --forward-to localhost:8080/api/webhooks/stripe
+   ```
+
+Los productos, precios (MXN, `PLAN_*_PRICE`) y el portal de clientes se crean solos en Stripe la primera vez.
+Paga con la tarjeta de prueba `4242 4242 4242 4242`, cualquier fecha futura y cualquier CVC.
+El plan de la empresa solo cambia cuando Stripe lo confirma por webhook.
+
 ### Pruebas
 
 ```powershell

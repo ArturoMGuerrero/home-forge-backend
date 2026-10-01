@@ -21,12 +21,6 @@ public class SubscriptionService {
         return SubscriptionResponse.from(findCompany(companyId));
     }
 
-    @Transactional
-    public SubscriptionResponse changePlan(UUID companyId, PlanCode planCode) {
-        Company company = findCompany(companyId);
-        company.changePlan(planCode);
-        return SubscriptionResponse.from(companyRepository.save(company));
-    }
 
     private Company findCompany(UUID companyId) {
         return companyRepository.findById(companyId)
