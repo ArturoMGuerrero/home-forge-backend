@@ -1,2 +1,0 @@
-package com.casaflow.lead.domain;
-public enum LeadStatus { NEW, CONTACTED, QUALIFIED, TOUR_SCHEDULED, TOUR_COMPLETED, OFFER_MADE, UNDER_CONTRACT, CLOSED, LOST }

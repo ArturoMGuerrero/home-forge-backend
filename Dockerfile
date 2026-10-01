@@ -10,11 +10,11 @@ RUN mvn package -DskipTests -B
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-RUN addgroup -S casaflow && adduser -S casaflow -G casaflow \
-    && mkdir -p /app/uploads && chown -R casaflow:casaflow /app
+RUN addgroup -S homeforge && adduser -S homeforge -G homeforge \
+    && mkdir -p /app/uploads && chown -R homeforge:homeforge /app
 
-COPY --from=build --chown=casaflow:casaflow /workspace/target/*.jar app.jar
+COPY --from=build --chown=homeforge:homeforge /workspace/target/*.jar app.jar
 
-USER casaflow
+USER homeforge
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

@@ -1,0 +1,26 @@
+package com.homeforge.lead.controller;
+import com.homeforge.lead.domain.Lead;
+import com.homeforge.lead.dto.ChangeLeadStatusRequest;
+import com.homeforge.lead.dto.CreateLeadRequest;
+import com.homeforge.lead.dto.CreateLeadActivityRequest;
+import com.homeforge.lead.dto.UpdateLeadRequest;
+import com.homeforge.lead.domain.LeadActivity;
+import com.homeforge.lead.service.LeadService;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
+import java.util.*;
+@RestController @RequestMapping("/api/leads")
+public class LeadController {
+  private final LeadService service;
+  public LeadController(LeadService service){this.service=service;}
+  @PostMapping public Lead create(@Valid @RequestBody CreateLeadRequest request){ return service.create(request); }
+  @GetMapping public List<Lead> list(@RequestParam UUID companyId){ return service.byCompany(companyId); }
+  @GetMapping("/{leadId}") public Lead get(@PathVariable UUID leadId, @RequestParam UUID companyId){ return service.get(leadId, companyId); }
+  @PutMapping("/{leadId}") public Lead update(@PathVariable UUID leadId, @Valid @RequestBody UpdateLeadRequest request){ return service.update(leadId, request); }
+  @PatchMapping("/{leadId}/status") public Lead changeStatus(@PathVariable UUID leadId, @Valid @RequestBody ChangeLeadStatusRequest request){ return service.changeStatus(leadId, request); }
+  @GetMapping("/{leadId}/activities") public List<LeadActivity> activities(@PathVariable UUID leadId, @RequestParam UUID companyId){ return service.activities(leadId, companyId); }
+  @PostMapping("/{leadId}/activities") public LeadActivity addActivity(@PathVariable UUID leadId, @Valid @RequestBody CreateLeadActivityRequest request){ return service.addActivity(leadId, request); }
+  @DeleteMapping("/{leadId}/activities/{activityId}") public void deleteActivity(@PathVariable UUID leadId, @PathVariable UUID activityId, @RequestParam UUID companyId){ service.deleteActivity(leadId, activityId, companyId); }
+  @GetMapping("/activities/user/{userId}") public List<LeadActivity> activitiesByUser(@PathVariable UUID userId, @RequestParam UUID companyId){ return service.activitiesByUser(userId, companyId); }
+  @GetMapping("/activities/property/{propertyId}") public List<LeadActivity> activitiesByProperty(@PathVariable UUID propertyId, @RequestParam UUID companyId){ return service.activitiesByProperty(propertyId, companyId); }
+}

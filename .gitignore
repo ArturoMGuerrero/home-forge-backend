@@ -92,3 +92,6 @@ Thumbs.db
 *.cert
 credentials.json
 secrets.json
+
+# Clave JWT de desarrollo (se genera sola)
+.jwt-dev-secret
