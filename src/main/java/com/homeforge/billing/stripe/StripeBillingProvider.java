@@ -12,6 +12,7 @@ import com.stripe.model.Subscription;
 import com.stripe.model.SubscriptionItem;
 import com.stripe.net.RequestOptions;
 import com.stripe.param.CustomerCreateParams;
+import com.stripe.param.SubscriptionUpdateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,10 +111,14 @@ public class StripeBillingProvider implements BillingProvider {
             throw new BillingException("Todavía no tienes una suscripción para administrar.");
         }
         try {
+            // Durante la prueba el portal no ofrece cambio de plan: ahí cobraría de inmediato.
+            String configuration = trialingSubscription(company) != null
+                    ? catalog.trialPortalConfigurationId()
+                    : catalog.portalConfigurationId();
             return client.v1().billingPortal().sessions().create(
                     com.stripe.param.billingportal.SessionCreateParams.builder()
                             .setCustomer(company.getStripeCustomerId())
-                            .setConfiguration(catalog.portalConfigurationId())
+                            .setConfiguration(configuration)
                             .setLocale(com.stripe.param.billingportal.SessionCreateParams.Locale.ES_419)
                             .setReturnUrl(frontendUrl + "/app/planes")
                             .build()).getUrl();
@@ -121,6 +126,41 @@ public class StripeBillingProvider implements BillingProvider {
             log.error("Stripe: no se pudo abrir el portal para la empresa {}", company.getId(), ex);
             throw new BillingException("No se pudo abrir el portal de pagos. Intenta de nuevo en unos minutos.", ex);
         }
+    }
+
+    @Override
+    @Transactional
+    public boolean changePlanDuringTrial(Company company, PlanCode plan) {
+        requireConfigured();
+        try {
+            Subscription subscription = trialingSubscription(company);
+            if (subscription == null) {
+                return false;
+            }
+            SubscriptionItem item = subscription.getItems().getData().getFirst();
+            String priceId = catalog.priceId(plan);
+            if (!priceId.equals(item.getPrice().getId())) {
+                // Sin prorrateo y sin tocar trial_end: la prueba sigue y no se genera ningún cargo ahora.
+                client.v1().subscriptions().update(subscription.getId(), SubscriptionUpdateParams.builder()
+                        .addItem(SubscriptionUpdateParams.Item.builder().setId(item.getId()).setPrice(priceId).build())
+                        .setProrationBehavior(SubscriptionUpdateParams.ProrationBehavior.NONE)
+                        .build());
+            }
+            syncSubscription(subscription.getId());
+            return true;
+        } catch (StripeException ex) {
+            log.error("Stripe: no se pudo cambiar el plan en prueba de la empresa {}", company.getId(), ex);
+            throw new BillingException("No se pudo cambiar el plan. Intenta de nuevo en unos minutos.", ex);
+        }
+    }
+
+    /** La suscripción de la empresa si está en periodo de prueba en Stripe; null en cualquier otro caso. */
+    private Subscription trialingSubscription(Company company) throws StripeException {
+        if (company.getStripeSubscriptionId() == null) {
+            return null;
+        }
+        Subscription subscription = client.v1().subscriptions().retrieve(company.getStripeSubscriptionId());
+        return "trialing".equals(subscription.getStatus()) ? subscription : null;
     }
 
     /**

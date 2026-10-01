@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -29,11 +30,13 @@ class StripeCatalog {
     private static final Logger log = LoggerFactory.getLogger(StripeCatalog.class);
     private static final String APP = "homeforge";
     private static final String CURRENCY = "mxn";
+    private static final String TRIAL_VARIANT = "trial";
 
     private final StripeClient client;
     private final Map<PlanCode, Long> monthlyPricesMxn;
     private volatile Map<PlanCode, Price> prices;
     private volatile String portalConfigurationId;
+    private volatile String trialPortalConfigurationId;
 
     StripeCatalog(StripeClient client, Map<PlanCode, Long> monthlyPricesMxn) {
         this.client = client;
@@ -58,45 +61,67 @@ class StripeCatalog {
         return prices().get(plan).getId();
     }
 
+    /** Portal normal: tarjeta, facturas, cambio de plan (con prorrateo) y cancelación. */
     synchronized String portalConfigurationId() {
-        if (portalConfigurationId != null) {
-            return portalConfigurationId;
+        if (portalConfigurationId == null) {
+            portalConfigurationId = findOrCreatePortal(false);
         }
+        return portalConfigurationId;
+    }
+
+    /**
+     * Portal para suscripciones en prueba: igual al normal pero sin cambio de plan. En el portal, cambiar de
+     * plan termina la prueba y cobra ese día; durante la prueba el cambio se hace desde HomeForge sin cobro.
+     */
+    synchronized String trialPortalConfigurationId() {
+        if (trialPortalConfigurationId == null) {
+            trialPortalConfigurationId = findOrCreatePortal(true);
+        }
+        return trialPortalConfigurationId;
+    }
+
+    private String findOrCreatePortal(boolean trial) {
+        String variant = trial ? TRIAL_VARIANT : null;
         try {
             for (Configuration existing : client.v1().billingPortal().configurations()
                     .list(ConfigurationListParams.builder().setActive(true).setLimit(100L).build()).getData()) {
-                if (APP.equals(existing.getMetadata().get("app"))) {
-                    return portalConfigurationId = existing.getId();
+                if (APP.equals(existing.getMetadata().get("app")) && Objects.equals(variant, existing.getMetadata().get("variant"))) {
+                    return existing.getId();
                 }
             }
-            ConfigurationCreateParams.Features.SubscriptionUpdate.Builder update =
-                    ConfigurationCreateParams.Features.SubscriptionUpdate.builder()
+            ConfigurationCreateParams.Features.Builder features = ConfigurationCreateParams.Features.builder()
+                    .setInvoiceHistory(ConfigurationCreateParams.Features.InvoiceHistory.builder().setEnabled(true).build())
+                    .setPaymentMethodUpdate(ConfigurationCreateParams.Features.PaymentMethodUpdate.builder().setEnabled(true).build())
+                    .setSubscriptionCancel(ConfigurationCreateParams.Features.SubscriptionCancel.builder()
                             .setEnabled(true)
-                            .addDefaultAllowedUpdate(ConfigurationCreateParams.Features.SubscriptionUpdate.DefaultAllowedUpdate.PRICE)
-                            .setProrationBehavior(ConfigurationCreateParams.Features.SubscriptionUpdate.ProrationBehavior.CREATE_PRORATIONS);
-            for (Price price : prices().values()) {
-                update.addProduct(ConfigurationCreateParams.Features.SubscriptionUpdate.Product.builder()
-                        .setProduct(price.getProduct())
-                        .addPrice(price.getId())
-                        .build());
+                            .setMode(ConfigurationCreateParams.Features.SubscriptionCancel.Mode.AT_PERIOD_END)
+                            .build());
+            if (!trial) {
+                ConfigurationCreateParams.Features.SubscriptionUpdate.Builder update =
+                        ConfigurationCreateParams.Features.SubscriptionUpdate.builder()
+                                .setEnabled(true)
+                                .addDefaultAllowedUpdate(ConfigurationCreateParams.Features.SubscriptionUpdate.DefaultAllowedUpdate.PRICE)
+                                .setProrationBehavior(ConfigurationCreateParams.Features.SubscriptionUpdate.ProrationBehavior.CREATE_PRORATIONS);
+                for (Price price : prices().values()) {
+                    update.addProduct(ConfigurationCreateParams.Features.SubscriptionUpdate.Product.builder()
+                            .setProduct(price.getProduct())
+                            .addPrice(price.getId())
+                            .build());
+                }
+                features.setSubscriptionUpdate(update.build());
             }
-            Configuration created = client.v1().billingPortal().configurations().create(ConfigurationCreateParams.builder()
+            ConfigurationCreateParams.Builder params = ConfigurationCreateParams.builder()
                     .setBusinessProfile(ConfigurationCreateParams.BusinessProfile.builder()
                             .setHeadline("Administra tu suscripción de HomeForge")
                             .build())
-                    .setFeatures(ConfigurationCreateParams.Features.builder()
-                            .setInvoiceHistory(ConfigurationCreateParams.Features.InvoiceHistory.builder().setEnabled(true).build())
-                            .setPaymentMethodUpdate(ConfigurationCreateParams.Features.PaymentMethodUpdate.builder().setEnabled(true).build())
-                            .setSubscriptionCancel(ConfigurationCreateParams.Features.SubscriptionCancel.builder()
-                                    .setEnabled(true)
-                                    .setMode(ConfigurationCreateParams.Features.SubscriptionCancel.Mode.AT_PERIOD_END)
-                                    .build())
-                            .setSubscriptionUpdate(update.build())
-                            .build())
-                    .putMetadata("app", APP)
-                    .build());
-            log.info("Stripe: se creó la configuración del portal de clientes {}", created.getId());
-            return portalConfigurationId = created.getId();
+                    .setFeatures(features.build())
+                    .putMetadata("app", APP);
+            if (trial) {
+                params.putMetadata("variant", TRIAL_VARIANT);
+            }
+            Configuration created = client.v1().billingPortal().configurations().create(params.build());
+            log.info("Stripe: se creó la configuración del portal de clientes {}{}", created.getId(), trial ? " (prueba)" : "");
+            return created.getId();
         } catch (StripeException ex) {
             throw new BillingException("No se pudo preparar el portal de pagos", ex);
         }
