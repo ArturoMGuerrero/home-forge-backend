@@ -46,9 +46,8 @@ class ContractsIntegrationTest {
 
         String contract = """
                 {"companyId":"%s","templateId":"%s","name":"Compraventa Casa Centro","documentType":"PURCHASE",
-                 "createdByUserId":"%s",
                  "variables":{"cliente_nombre":"Ana López","propiedad_titulo":"Casa Centro","precio":"$2,500,000"}}
-                """.formatted(owner.companyId(), templateId, UUID.randomUUID());
+                """.formatted(owner.companyId(), templateId);
         HttpResponse<String> created = send("POST", "/contracts", contract, owner.token());
         assertEquals(201, created.statusCode(), created.body());
         String contractId = field(created.body(), "id");
