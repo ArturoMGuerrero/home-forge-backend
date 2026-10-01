@@ -2,32 +2,50 @@
 
 API REST para HomeForge, una plataforma CRM completa para inmobiliarias, constructoras, desarrolladores y equipos comerciales de vivienda.
 
-## Ejecutar con Rancher Desktop
+## Desarrollo local
 
-El proyecto usa PostgreSQL en contenedor; no requiere instalar una base de datos en Windows.
+Requisitos: Java 21 y [Rancher Desktop](https://rancherdesktop.io/) con `dockerd (moby)` como
+container engine (Kubernetes puede ir desactivado).
 
-1. Abre Rancher Desktop y selecciona `Moby (dockerd)` como Container Engine.
-2. Copia `.env.example` a `.env` y cambia, como mínimo, `DB_PASSWORD`.
-3. Desde esta carpeta ejecuta:
+1. Copia la configuración de ejemplo. Sus valores de base de datos ya coinciden con `compose.yml`:
+
+   ```powershell
+   Copy-Item .env.example .env
+   ```
+
+2. Levanta PostgreSQL y el backend:
+
+   ```powershell
+   docker compose up -d postgres
+   ./mvnw spring-boot:run
+   ```
+
+   El backend lee `.env` automáticamente (`spring.config.import`) y Flyway aplica las migraciones al arrancar.
+   API en `http://localhost:8080`, PostgreSQL en `localhost:5432`.
+
+`.env` está en `.gitignore`: **nunca subas credenciales al repositorio**. En producción las variables
+vienen del entorno de la plataforma.
+
+### Todo en contenedores
+
+Para probar el despliegue completo (PostgreSQL, backend y frontend en `http://localhost:5174`):
 
 ```powershell
 docker compose up --build -d
-docker compose ps
-docker compose logs -f backend
 ```
 
-El frontend queda en `http://localhost:5174`, el backend en
-`http://localhost:8080` y PostgreSQL en `localhost:5432`.
-Los datos persisten en los volúmenes `homeforge_postgres_data` y
-`homeforge_uploads_data`.
+Los datos persisten en los volúmenes `homeforge_postgres_data` y `homeforge_uploads_data`.
+`docker compose down` detiene los servicios sin borrar datos; no uses `docker compose down -v`
+salvo que quieras eliminar también la base de datos.
 
-Para detener los servicios sin borrar datos:
+### Pruebas
 
 ```powershell
-docker compose down
+./mvnw test
 ```
 
-No uses `docker compose down -v` salvo que quieras eliminar también la base de datos.
+Las pruebas de integración levantan su propio PostgreSQL con Testcontainers
+(`TestcontainersConfiguration`), así que Rancher Desktop debe estar corriendo.
 
 ## 🎯 Características Principales
 
@@ -44,110 +62,12 @@ No uses `docker compose down -v` salvo que quieras eliminar también la base de 
 
 - **Framework**: Spring Boot 4.1.1
 - **Lenguaje**: Java 21
-- **Base de datos**: PostgreSQL, H2 (desarrollo) o SQL Server
+- **Base de datos**: PostgreSQL 16
 - **ORM**: Spring Data JPA + Hibernate
 - **Migraciones**: Flyway
-- **Build**: Maven
+- **Build**: Maven (wrapper `mvnw`)
+- **Pruebas**: JUnit 5 + Testcontainers
 - **Pagos**: MercadoPago SDK
-- **Suscripciones**: Sistema integrado con renovación automática
-
-## 📋 Requisitos
-
-- Java 21 o superior ([Descargar Adoptium JDK](https://adoptium.net/))
-- Maven (incluido como wrapper - `mvnw`)
-- Base de datos (elige una):
-  - H2 (incluida - recomendada para desarrollo)
-  - PostgreSQL 14+ (vía Docker o instalación local)
-  - SQL Server Express o superior
-
-## 🔧 Configuración Inicial
-
-### 1. Clonar el repositorio
-
-```bash
-git clone <tu-repositorio-backend>
-cd HomeForge-backend
-```
-
-### 2. Configurar variables de entorno
-
-Copia el archivo de ejemplo:
-
-```bash
-cp .env.example .env
-```
-
-Edita `.env` según tus necesidades:
-
-```bash
-# Puerto del servidor
-SERVER_PORT=8080
-
-# CORS - Agrega la URL de tu frontend
-CORS_ALLOWED_ORIGINS=http://localhost:5174
-
-# Directorio para archivos subidos
-UPLOADS_DIRECTORY=uploads
-
-# MercadoPago (IMPORTANTE: Usa credenciales de prueba para desarrollo)
-MERCADOPAGO_ACCESS_TOKEN=tu_access_token_aqui
-MERCADOPAGO_PUBLIC_KEY=tu_public_key_aqui
-```
-
-## 🚀 Iniciar el Proyecto
-
-### Opción 1: H2 Database (Desarrollo rápido)
-
-```bash
-# Windows
-start-h2.cmd
-
-# Linux/Mac/Git Bash
-./start-h2.sh
-```
-
-**Consola H2**: http://localhost:8080/h2-console
-
-- JDBC URL: `jdbc:h2:file:./data/homeforge`
-- Usuario: `sa`
-- Password: (vacío)
-
-### Opción 2: SQL Server
-
-```bash
-# Windows
-start-sqlserver.cmd
-
-# Linux/Mac/Git Bash
-./start-sqlserver.sh
-```
-
-**Configuración**: Edita `src/main/resources/application-sqlserver.yml` si necesitas cambiar la conexión.
-
-Ver guía completa: [SQL_SERVER_SETUP.md](../HomeForge/SQL_SERVER_SETUP.md)
-
-### Opción 3: PostgreSQL (via Docker)
-
-```bash
-# Iniciar PostgreSQL
-docker-compose up -d
-
-# Iniciar backend
-mvnw spring-boot:run
-```
-
-### Opción 4: Ejecutar manualmente con Maven
-
-```bash
-# H2
-mvnw spring-boot:run -Dspring-boot.run.profiles=h2
-
-# SQL Server
-mvnw spring-boot:run -Dspring-boot.run.profiles=sqlserver
-
-# PostgreSQL (default)
-mvnw spring-boot:run
-```
 
 ## 📡 API Endpoints
 

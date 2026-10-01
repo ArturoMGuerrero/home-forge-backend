@@ -12,7 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ActiveProfiles;
+import com.homeforge.TestcontainersConfiguration;
+import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -21,7 +22,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@ActiveProfiles("h2")
+@Import(TestcontainersConfiguration.class)
 @Transactional
 class SubscriptionValidationIntegrationTest {
 
@@ -43,7 +44,7 @@ class SubscriptionValidationIntegrationTest {
         activeCompanyId = UUID.randomUUID();
         jdbcTemplate.update(
             "INSERT INTO companies (id, name, country_code, state_code, default_currency, timezone, plan_code, subscription_status, created_at) " +
-            "VALUES (?, 'Empresa Activa', 'MX', 'QRO', 'MXN', 'America/Mexico_City', 'PROFESSIONAL', 'ACTIVE', CURRENT_TIMESTAMP)",
+            "VALUES (?, 'Empresa Activa', 'MX', 'QRO', 'MXN', 'America/Mexico_City', 'PRO', 'ACTIVE', CURRENT_TIMESTAMP)",
             activeCompanyId
         );
 
@@ -57,7 +58,7 @@ class SubscriptionValidationIntegrationTest {
         expiredCompanyId = UUID.randomUUID();
         jdbcTemplate.update(
             "INSERT INTO companies (id, name, country_code, state_code, default_currency, timezone, plan_code, subscription_status, created_at) " +
-            "VALUES (?, 'Empresa Expirada', 'MX', 'QRO', 'MXN', 'America/Mexico_City', 'PROFESSIONAL', 'EXPIRED', CURRENT_TIMESTAMP)",
+            "VALUES (?, 'Empresa Expirada', 'MX', 'QRO', 'MXN', 'America/Mexico_City', 'PRO', 'EXPIRED', CURRENT_TIMESTAMP)",
             expiredCompanyId
         );
     }
@@ -123,7 +124,7 @@ class SubscriptionValidationIntegrationTest {
     void activeCompanyCanCreateProperty() {
         CreatePropertyRequest request = new CreatePropertyRequest(
             activeCompanyId,
-            "CF-100",
+            "HF-100",
             "Casa de prueba",
             "HOUSE",
             ListingType.SALE,
@@ -158,7 +159,7 @@ class SubscriptionValidationIntegrationTest {
     void trialCompanyCanCreateProperty() {
         CreatePropertyRequest request = new CreatePropertyRequest(
             trialCompanyId,
-            "CF-101",
+            "HF-101",
             "Departamento de prueba",
             "APARTMENT",
             ListingType.RENT,
@@ -193,7 +194,7 @@ class SubscriptionValidationIntegrationTest {
     void expiredCompanyCannotCreateProperty() {
         CreatePropertyRequest request = new CreatePropertyRequest(
             expiredCompanyId,
-            "CF-102",
+            "HF-102",
             "Local de prueba",
             "COMMERCIAL",
             ListingType.RENT,
@@ -235,7 +236,7 @@ class SubscriptionValidationIntegrationTest {
         UUID suspendedCompanyId = UUID.randomUUID();
         jdbcTemplate.update(
             "INSERT INTO companies (id, name, country_code, state_code, default_currency, timezone, plan_code, subscription_status, created_at) " +
-            "VALUES (?, 'Empresa Suspendida', 'MX', 'QRO', 'MXN', 'America/Mexico_City', 'PROFESSIONAL', 'SUSPENDED', CURRENT_TIMESTAMP)",
+            "VALUES (?, 'Empresa Suspendida', 'MX', 'QRO', 'MXN', 'America/Mexico_City', 'PRO', 'SUSPENDED', CURRENT_TIMESTAMP)",
             suspendedCompanyId
         );
 
@@ -262,13 +263,13 @@ class SubscriptionValidationIntegrationTest {
         UUID cancelledCompanyId = UUID.randomUUID();
         jdbcTemplate.update(
             "INSERT INTO companies (id, name, country_code, state_code, default_currency, timezone, plan_code, subscription_status, created_at) " +
-            "VALUES (?, 'Empresa Cancelada', 'MX', 'QRO', 'MXN', 'America/Mexico_City', 'PROFESSIONAL', 'CANCELLED', CURRENT_TIMESTAMP)",
+            "VALUES (?, 'Empresa Cancelada', 'MX', 'QRO', 'MXN', 'America/Mexico_City', 'PRO', 'CANCELLED', CURRENT_TIMESTAMP)",
             cancelledCompanyId
         );
 
         CreatePropertyRequest request = new CreatePropertyRequest(
             cancelledCompanyId,
-            "CF-103",
+            "HF-103",
             "Terreno de prueba",
             "LAND",
             ListingType.SALE,

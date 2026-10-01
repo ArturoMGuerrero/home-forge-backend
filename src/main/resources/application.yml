@@ -1,8 +1,11 @@
 spring:
+  config:
+    # En desarrollo lee las variables de .env (si existe); en producción vienen del entorno.
+    import: optional:file:.env[.properties]
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/homeforge}
     username: ${DB_USERNAME:homeforge}
-    password: ${DB_PASSWORD:homeforge}
+    password: ${DB_PASSWORD:homeforge_local}
   jpa:
     hibernate:
       ddl-auto: validate
