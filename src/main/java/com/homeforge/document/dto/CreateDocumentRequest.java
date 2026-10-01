@@ -13,7 +13,7 @@ public record CreateDocumentRequest(
         UUID templateId,
         @NotBlank @Size(max = 255) String name,
         @NotNull DocumentType documentType,
-        @NotNull UUID createdByUserId,
+        UUID createdByUserId, // lo fija el servidor con el usuario de la sesión
         UUID leadId,
         UUID propertyId,
         Map<String, String> variables,

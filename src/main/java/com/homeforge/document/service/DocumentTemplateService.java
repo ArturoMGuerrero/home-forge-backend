@@ -70,9 +70,15 @@ public class DocumentTemplateService {
     }
 
     @Transactional
-    public DocumentTemplate update(UUID templateId, UUID companyId, String content) {
+    public DocumentTemplate update(UUID templateId, UUID companyId, String content, String name, String description) {
         DocumentTemplate template = get(templateId, companyId);
         template.setContent(content);
+        if (name != null && !name.isBlank()) {
+            template.setName(name.trim());
+        }
+        if (description != null) {
+            template.setDescription(description.trim());
+        }
         template.incrementVersion();
         return repository.save(template);
     }

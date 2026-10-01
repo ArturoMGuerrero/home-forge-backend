@@ -56,7 +56,7 @@ public class DocumentTemplateController {
         if (content == null) {
             throw new IllegalArgumentException("El contenido es requerido");
         }
-        return service.update(templateId, companyId, content);
+        return service.update(templateId, companyId, content, body.get("name"), body.get("description"));
     }
 
     @PatchMapping("/{templateId}/toggle-active")

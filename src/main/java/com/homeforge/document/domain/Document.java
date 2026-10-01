@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "documents")
+@Table(name = "generated_documents")
 public class Document extends AuditableEntity {
     @TenantId @Column(nullable = false) private UUID companyId;
 
