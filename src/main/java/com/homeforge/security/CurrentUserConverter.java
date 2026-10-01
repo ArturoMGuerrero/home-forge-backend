@@ -29,6 +29,9 @@ class CurrentUserConverter implements Converter<Jwt, AbstractAuthenticationToken
         UUID companyId = UUID.fromString(jwt.getClaimAsString(TokenService.COMPANY_CLAIM));
         User user = userRepository.findById(userId)
                 .filter(u -> u.getDeletedAt() == null && u.isActive() && u.getCompanyId().equals(companyId))
+                // Un cambio de contraseña cierra las sesiones abiertas antes (el iat del token va en segundos).
+                .filter(u -> u.getPasswordChangedAt() == null || jwt.getIssuedAt() == null
+                        || !jwt.getIssuedAt().isBefore(u.getPasswordChangedAt().truncatedTo(java.time.temporal.ChronoUnit.SECONDS)))
                 .orElseThrow(() -> new InvalidBearerTokenException("Sesión no válida"));
         return new CurrentUserAuthentication(
                 new CurrentUser(user.getId(), user.getCompanyId(), user.getEmail(), user.getRole()), jwt);
