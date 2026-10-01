@@ -31,8 +31,8 @@ public class Company extends AuditableEntity {
     private Instant trialStartedAt = Instant.now();
     private Instant trialEndsAt = Instant.now().plus(14, ChronoUnit.DAYS);
     private Instant nextBillingAt;
-    @Column(length=100) private String mercadoPagoCustomerId;
-    @Column(length=100) private String mercadoPagoSubscriptionId;
+    @Column(name="mercadopago_customer_id", length=100) private String mercadoPagoCustomerId;
+    @Column(name="mercadopago_subscription_id", length=100) private String mercadoPagoSubscriptionId;
     @Column(length=50) private String paymentMethod;
     private Instant lastPaymentAt;
     @Column(length=50) private String lastPaymentStatus;
