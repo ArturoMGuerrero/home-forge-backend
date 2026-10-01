@@ -46,7 +46,8 @@ public class SecurityConfig {
                                 "/api/auth/request-password-reset", "/api/auth/reset-password").permitAll()
                         // Sitio público
                         .requestMatchers(HttpMethod.GET, "/api/properties/public", "/api/properties/public/**",
-                                "/api/companies/public/**", "/api/catalogs", "/api/catalogs/**", "/uploads/**").permitAll()
+                                "/api/companies/public/**", "/api/catalogs", "/api/catalogs/**", "/uploads/**",
+                                "/api/share/**").permitAll()
                         // Avisos de los proveedores de pago (servidor a servidor; cada uno valida su firma)
                         .requestMatchers(HttpMethod.POST, "/api/webhooks/mercadopago", "/api/webhooks/stripe").permitAll()
                         // Administración de la empresa: solo administradores

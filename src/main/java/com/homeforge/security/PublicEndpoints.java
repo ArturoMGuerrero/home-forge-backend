@@ -15,7 +15,8 @@ public final class PublicEndpoints {
     static final List<String> READ_PREFIXES = List.of(
             "/api/properties/public",
             "/api/companies/public/",
-            "/api/catalogs"
+            "/api/catalogs",
+            "/api/share/"
     );
 
     private PublicEndpoints() {}
