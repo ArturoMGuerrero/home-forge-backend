@@ -39,20 +39,26 @@ public class BillingController {
 
     public record RedirectResponse(String url) {}
 
+    /** {@code url}: a dónde llevar al usuario; o {@code planChanged}: el plan ya cambió sin salir de HomeForge. */
+    public record CheckoutResponse(String url, boolean planChanged) {}
+
     @GetMapping("/providers")
     public List<ProviderInfo> providers() {
         return providers.stream().map(p -> new ProviderInfo(p.id(), p.isConfigured())).toList();
     }
 
     @PostMapping("/checkout")
-    public RedirectResponse checkout(@Valid @RequestBody CheckoutRequest request) {
+    public CheckoutResponse checkout(@Valid @RequestBody CheckoutRequest request) {
         CurrentUser user = currentUser();
         Company company = company(user);
         BillingProvider provider = stripe();
         if (company.getStripeSubscriptionId() != null && MANAGED_STATUSES.contains(company.getSubscriptionStatus())) {
-            return new RedirectResponse(provider.managementUrl(company));
+            if (provider.changePlanDuringTrial(company, request.planCode())) {
+                return new CheckoutResponse(null, true);
+            }
+            return new CheckoutResponse(provider.managementUrl(company), false);
         }
-        return new RedirectResponse(provider.startCheckout(company, user.email(), request.planCode()));
+        return new CheckoutResponse(provider.startCheckout(company, user.email(), request.planCode()), false);
     }
 
     @PostMapping("/portal")

@@ -20,4 +20,12 @@ public interface BillingProvider {
 
     /** URL donde el cliente administra su suscripción (tarjeta, cambio de plan, cancelación). */
     String managementUrl(Company company);
+
+    /**
+     * Si la suscripción sigue en periodo de prueba, cambia el plan sin cobrar: el primer cobro, ya con el
+     * plan nuevo, llega al terminar la prueba. Devuelve false si no hay prueba vigente.
+     */
+    default boolean changePlanDuringTrial(Company company, PlanCode plan) {
+        return false;
+    }
 }
