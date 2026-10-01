@@ -39,6 +39,9 @@ public class User extends AuditableEntity {
     @Column(name = "last_assigned_lead_at")
     private java.time.Instant lastAssignedLeadAt;
 
+    @Column(name = "password_changed_at")
+    private java.time.Instant passwordChangedAt;
+
     protected User() {
     }
 
@@ -93,6 +96,16 @@ public class User extends AuditableEntity {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    /** Cambia la contraseña e invalida los tokens emitidos antes de este momento. */
+    public void changePassword(String passwordHash) {
+        this.passwordHash = passwordHash;
+        this.passwordChangedAt = java.time.Instant.now();
+    }
+
+    public java.time.Instant getPasswordChangedAt() {
+        return passwordChangedAt;
     }
 
     public void setActive(boolean active) {

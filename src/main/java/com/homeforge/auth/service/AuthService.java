@@ -141,7 +141,7 @@ public class AuthService {
         User user = userRepository.findById(token.getUserId())
                 .filter(User::isActive)
                 .orElseThrow(InvalidPasswordResetTokenException::new);
-        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.changePassword(passwordEncoder.encode(newPassword));
         token.markUsed(now);
         userRepository.save(user);
         passwordResetTokenRepository.save(token);
