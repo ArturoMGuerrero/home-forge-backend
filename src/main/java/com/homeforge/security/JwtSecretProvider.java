@@ -29,8 +29,12 @@ public class JwtSecretProvider {
 
     public JwtSecretProvider(
             @Value("${app.jwt.secret:}") String configuredSecret,
-            @Value("${app.jwt.dev-secret-file:.jwt-dev-secret}") String devSecretFile
+            @Value("${app.jwt.dev-secret-file:.jwt-dev-secret}") String devSecretFile,
+            @Value("${app.jwt.require-secret:false}") boolean requireSecret
     ) {
+        if (requireSecret && configuredSecret.isBlank()) {
+            throw new IllegalStateException("Falta JWT_SECRET: en producción es obligatoria (32+ caracteres)");
+        }
         String secret = configuredSecret.isBlank() ? devSecret(Path.of(devSecretFile)) : configuredSecret;
         if (secret.length() < MIN_LENGTH) {
             throw new IllegalStateException("JWT_SECRET debe tener al menos " + MIN_LENGTH + " caracteres");

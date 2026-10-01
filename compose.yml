@@ -29,8 +29,15 @@ services:
       DB_USERNAME: ${DB_USERNAME:-homeforge}
       DB_PASSWORD: ${DB_PASSWORD:-homeforge_local}
       SERVER_PORT: 8080
+      # La imagen arranca con el perfil de producción, que exige JWT_SECRET (32+ caracteres).
+      JWT_SECRET: ${JWT_SECRET:-}
+      # Aquí no hay proxy delante: no confiar en X-Forwarded-For.
+      FORWARD_HEADERS_STRATEGY: none
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5174}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174}
       UPLOADS_DIRECTORY: /app/uploads
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
       MERCADOPAGO_ACCESS_TOKEN: ${MERCADOPAGO_ACCESS_TOKEN:-}
       MERCADOPAGO_PUBLIC_KEY: ${MERCADOPAGO_PUBLIC_KEY:-}
       PLAN_STARTER_PRICE: ${PLAN_STARTER_PRICE:-299}
@@ -47,13 +54,13 @@ services:
   frontend:
     build:
       context: ../home-forge-frontend
-      dockerfile: ../home-forge-backend/Dockerfile.frontend
+      dockerfile: Dockerfile
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-5174}:80"
     depends_on:
       backend:
-        condition: service_started
+        condition: service_healthy
 
 volumes:
   postgres_data:

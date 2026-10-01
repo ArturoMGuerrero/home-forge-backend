@@ -21,9 +21,28 @@ spring:
       max-request-size: 96MB
 server:
   port: ${SERVER_PORT:8080}
+  shutdown: graceful
+  # Detrás de un proxy (producción) usa "framework" para leer la IP real de X-Forwarded-For.
+  # En local se deja en "none": sin proxy, cualquiera podría falsear su IP con ese encabezado.
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:none}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
 
 app:
   frontend-url: ${FRONTEND_URL:http://localhost:5174}
+  jwt:
+    secret: ${JWT_SECRET:}
+    # En producción es obligatoria: sin ella cada reinicio generaría otra clave y cerraría todas las sesiones.
+    require-secret: ${JWT_REQUIRE_SECRET:false}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://172.27.9.148:5174}
   uploads:
