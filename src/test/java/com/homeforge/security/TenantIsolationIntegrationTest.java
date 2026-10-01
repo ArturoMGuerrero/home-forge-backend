@@ -98,6 +98,26 @@ class TenantIsolationIntegrationTest {
         assertEquals(200, send("GET", "/agent-availability/" + availabilityId, null, beta.token()).statusCode());
     }
 
+    @Test
+    void publicCatalogShowsEveryCompanyEvenWithASessionAndHidesOwnerData() throws Exception {
+        String property = """
+                {"companyId":"%s","code":"HF-%d","title":"Casa pública de Beta","propertyType":"HOUSE",
+                 "listingType":"SALE","status":"AVAILABLE","price":2500000,"currencyCode":"MXN","countryCode":"MX",
+                 "stateCode":"Chihuahua","city":"Chihuahua","published":true,
+                 "ownerName":"Dueño Privado","ownerEmail":"dueno.privado@example.com","ownerPhone":"+526141234567"}
+                """.formatted(beta.companyId(), System.nanoTime() % 100000);
+        HttpResponse<String> created = send("POST", "/properties", property, beta.token());
+        assertTrue(created.statusCode() < 300, created.body());
+
+        // Un asesor de otra empresa con sesión abierta navega el sitio público.
+        HttpResponse<String> catalog = send("GET", "/properties/public", null, alpha.token());
+        assertEquals(200, catalog.statusCode());
+        assertTrue(catalog.body().contains("Casa pública de Beta"), "el catálogo público debe incluir otras empresas");
+        assertFalse(catalog.body().contains("Dueño Privado"));
+        assertFalse(catalog.body().contains("dueno.privado@example.com"));
+        assertFalse(catalog.body().contains("ownerPhone"));
+    }
+
     private Account register(String companyName) throws Exception {
         String email = "admin-" + UUID.randomUUID() + "@example.com";
         String body = """

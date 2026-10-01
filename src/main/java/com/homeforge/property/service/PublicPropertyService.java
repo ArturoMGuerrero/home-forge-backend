@@ -43,7 +43,7 @@ public class PublicPropertyService {
         Company company = companyRepository.findById(property.getCompanyId())
                 .orElseThrow(() -> new IllegalArgumentException("Empresa no encontrada."));
         return new PublicPropertyResponse(
-                property,
+                com.homeforge.property.dto.PublicProperty.from(property),
                 new SellerContact(
                         company.getId(),
                         company.getName(),
