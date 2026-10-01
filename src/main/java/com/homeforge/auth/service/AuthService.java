@@ -13,6 +13,7 @@ import com.homeforge.company.repository.CompanyRepository;
 import com.homeforge.user.domain.User;
 import com.homeforge.user.repository.UserRepository;
 import com.homeforge.notification.service.EmailService;
+import com.homeforge.security.TokenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,6 +38,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
+    private final TokenService tokenService;
     private final String frontendUrl;
     private final SecureRandom secureRandom = new SecureRandom();
 
@@ -46,6 +48,7 @@ public class AuthService {
             PasswordEncoder passwordEncoder,
             PasswordResetTokenRepository passwordResetTokenRepository,
             EmailService emailService,
+            TokenService tokenService,
             @Value("${app.frontend-url:http://localhost:5173}") String frontendUrl
     ) {
         this.userRepository = userRepository;
@@ -53,6 +56,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.emailService = emailService;
+        this.tokenService = tokenService;
         this.frontendUrl = frontendUrl.replaceAll("/$", "");
     }
 
@@ -89,7 +93,7 @@ public class AuthService {
         User user = userRepository.findByEmailIgnoreCaseAndDeletedAtIsNull(normalizeEmail(request.email()))
                 .orElseThrow(InvalidCredentialsException::new);
 
-        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+        if (!user.isActive() || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new InvalidCredentialsException();
         }
 
@@ -152,7 +156,7 @@ public class AuthService {
         }
     }
 
-    private static AuthResponse response(User user, Company company) {
+    private AuthResponse response(User user, Company company) {
         return new AuthResponse(
                 user.getId(),
                 user.getCompanyId(),
@@ -163,7 +167,8 @@ public class AuthService {
                 company.getPlanCode().name(),
                 company.getPlanCode().getUserLimit(),
                 company.getSubscriptionStatus(),
-                company.getTrialEndsAt()
+                company.getTrialEndsAt(),
+                tokenService.issue(user)
         );
     }
 }

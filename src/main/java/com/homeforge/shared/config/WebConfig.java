@@ -2,35 +2,29 @@ package com.homeforge.shared.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import com.homeforge.security.TenantGuard;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    private final String[] allowedOrigins;
+    private final TenantGuard tenantGuard;
     private final String uploadsDirectory;
 
     public WebConfig(
-            @Value("${app.cors.allowed-origins}") String allowedOrigins,
+            TenantGuard tenantGuard,
             @Value("${app.uploads.directory:uploads}") String uploadsDirectory
     ) {
-        this.allowedOrigins = Arrays.stream(allowedOrigins.split(","))
-                .map(String::trim)
-                .filter(origin -> !origin.isEmpty())
-                .toArray(String[]::new);
+        this.tenantGuard = tenantGuard;
         this.uploadsDirectory = uploadsDirectory;
     }
 
     @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOrigins(allowedOrigins)
-                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
-                .allowedHeaders("*");
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(tenantGuard).addPathPatterns("/api/**");
     }
 
     @Override

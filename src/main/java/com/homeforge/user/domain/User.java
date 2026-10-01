@@ -1,5 +1,7 @@
 package com.homeforge.user.domain;
 
+import org.hibernate.annotations.TenantId;
+
 import com.homeforge.shared.audit.AuditableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,8 +13,7 @@ import java.util.UUID;
 @Table(name = "users")
 public class User extends AuditableEntity {
 
-    @Column(nullable = false)
-    private UUID companyId;
+    @TenantId @Column(nullable = false) private UUID companyId;
 
     @Column(nullable = false, length = 180)
     private String fullName;

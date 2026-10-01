@@ -1,5 +1,7 @@
 package com.homeforge.notification.domain;
 
+import org.hibernate.annotations.TenantId;
+
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
@@ -11,8 +13,7 @@ public class CommunicationChannel {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "company_id", nullable = false)
-    private UUID companyId;
+    @TenantId @Column(name = "company_id", nullable = false) private UUID companyId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "channel_type", nullable = false)

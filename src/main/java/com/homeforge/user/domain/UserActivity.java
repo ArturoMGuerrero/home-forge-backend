@@ -1,5 +1,7 @@
 package com.homeforge.user.domain;
 
+import org.hibernate.annotations.TenantId;
+
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -13,8 +15,7 @@ public class UserActivity {
     @GeneratedValue
     private UUID id;
 
-    @Column(nullable = false)
-    private UUID companyId;
+    @TenantId @Column(nullable = false) private UUID companyId;
 
     @Column(nullable = false)
     private UUID userId;

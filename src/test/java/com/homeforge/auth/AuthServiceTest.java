@@ -1,5 +1,6 @@
 package com.homeforge.auth;
 
+import com.homeforge.security.TokenService;
 import com.homeforge.auth.dto.AuthResponse;
 import com.homeforge.auth.dto.LoginRequest;
 import com.homeforge.auth.dto.RegisterRequest;
@@ -36,18 +37,22 @@ class AuthServiceTest {
     private CompanyRepository companyRepository;
     private PasswordEncoder passwordEncoder;
     private AuthService service;
+    private TokenService tokenService;
 
     @BeforeEach
     void setUp() {
         userRepository = mock(UserRepository.class);
         companyRepository = mock(CompanyRepository.class);
         passwordEncoder = new BCryptPasswordEncoder();
+        tokenService = mock(TokenService.class);
+        when(tokenService.issue(any(User.class))).thenReturn("test-token");
         service = new AuthService(
                 userRepository,
                 companyRepository,
                 passwordEncoder,
                 mock(PasswordResetTokenRepository.class),
                 mock(EmailService.class),
+                tokenService,
                 "http://localhost:5173"
         );
     }

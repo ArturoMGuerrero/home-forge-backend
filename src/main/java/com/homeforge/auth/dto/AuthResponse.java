@@ -13,6 +13,7 @@ public record AuthResponse(
         String planCode,
         int userLimit,
         String subscriptionStatus,
-        Instant trialEndsAt
+        Instant trialEndsAt,
+        String token
 ) {
 }

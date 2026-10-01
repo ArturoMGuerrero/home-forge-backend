@@ -5,6 +5,7 @@ import com.homeforge.auth.exception.InvalidCredentialsException;
 import com.homeforge.auth.exception.InvalidPasswordResetTokenException;
 import com.homeforge.subscription.exception.SubscriptionExpiredException;
 import org.springframework.http.*;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
@@ -41,5 +42,10 @@ public class ApiExceptionHandler {
     @ExceptionHandler(SubscriptionExpiredException.class)
     ResponseEntity<Map<String, String>> subscriptionExpired(SubscriptionExpiredException ex) {
         return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    ResponseEntity<Map<String, String>> accessDenied(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", ex.getMessage()));
     }
 }

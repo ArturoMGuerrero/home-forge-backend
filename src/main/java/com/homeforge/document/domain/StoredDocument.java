@@ -1,5 +1,7 @@
 package com.homeforge.document.domain;
 
+import org.hibernate.annotations.TenantId;
+
 import com.homeforge.shared.audit.AuditableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +12,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "documents")
 public class StoredDocument extends AuditableEntity {
-    @Column(nullable = false) private UUID companyId;
+    @TenantId @Column(nullable = false) private UUID companyId;
     private UUID leadId;
     private UUID propertyId;
     @Column(nullable = false, length = 80) private String documentType;

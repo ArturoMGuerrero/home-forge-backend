@@ -1,5 +1,7 @@
 package com.homeforge.match.domain;
 
+import org.hibernate.annotations.TenantId;
+
 import com.homeforge.shared.audit.AuditableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +12,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "lead_property_matches")
 public class LeadPropertyMatch extends AuditableEntity {
-    @Column(nullable = false) private UUID companyId;
+    @TenantId @Column(nullable = false) private UUID companyId;
     @Column(nullable = false) private UUID leadId;
     @Column(nullable = false) private UUID propertyId;
     @Column(nullable = false, length = 30) private String status = "SUGGESTED";

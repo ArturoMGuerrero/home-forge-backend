@@ -1,5 +1,7 @@
 package com.homeforge.lead.domain;
 
+import org.hibernate.annotations.TenantId;
+
 import com.homeforge.shared.audit.AuditableEntity;
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -8,8 +10,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "follow_up_tasks")
 public class FollowUpTask extends AuditableEntity {
-    @Column(nullable = false)
-    private UUID companyId;
+    @TenantId @Column(nullable = false) private UUID companyId;
 
     @Column(nullable = false)
     private UUID leadId;

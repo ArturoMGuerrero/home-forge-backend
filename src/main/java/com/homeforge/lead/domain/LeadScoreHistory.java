@@ -1,5 +1,7 @@
 package com.homeforge.lead.domain;
 
+import org.hibernate.annotations.TenantId;
+
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
@@ -11,8 +13,7 @@ public class LeadScoreHistory {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
-    private UUID companyId;
+    @TenantId @Column(nullable = false) private UUID companyId;
 
     @Column(nullable = false)
     private UUID leadId;

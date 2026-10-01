@@ -1,5 +1,7 @@
 package com.homeforge.appointment.domain;
 
+import org.hibernate.annotations.TenantId;
+
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.time.LocalTime;
@@ -12,8 +14,7 @@ public class AgentAvailability {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "company_id", nullable = false)
-    private UUID companyId;
+    @TenantId @Column(name = "company_id", nullable = false) private UUID companyId;
 
     @Column(name = "user_id", nullable = false)
     private UUID userId;

@@ -1,5 +1,7 @@
 package com.homeforge.property.domain;
 
+import org.hibernate.annotations.TenantId;
+
 import com.homeforge.shared.audit.AuditableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,8 +22,7 @@ import java.util.UUID;
 @Table(name = "properties")
 public class Property extends AuditableEntity {
 
-    @Column(nullable = false)
-    private UUID companyId;
+    @TenantId @Column(nullable = false) private UUID companyId;
 
     private UUID developmentId;
 
