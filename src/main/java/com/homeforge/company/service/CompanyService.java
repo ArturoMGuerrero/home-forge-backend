@@ -1,12 +1,14 @@
 package com.homeforge.company.service;
 
 import com.homeforge.company.domain.Company;
+import com.homeforge.company.dto.BusinessHours;
 import com.homeforge.company.dto.CompanyProfileRequest;
 import com.homeforge.company.dto.CompanyProfileResponse;
 import com.homeforge.company.repository.CompanyRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Service
@@ -43,6 +45,18 @@ public class CompanyService {
                 request.yearsExperience()
         );
         return CompanyProfileResponse.from(repository.save(company));
+    }
+
+    @Transactional(readOnly = true)
+    public BusinessHours businessHours(UUID companyId) {
+        return BusinessHours.from(find(companyId));
+    }
+
+    @Transactional
+    public BusinessHours updateBusinessHours(UUID companyId, BusinessHours request) {
+        Company company = find(companyId);
+        company.updateBusinessHours(LocalTime.parse(request.start()), LocalTime.parse(request.end()), request.slotMinutes());
+        return BusinessHours.from(repository.save(company));
     }
 
     private Company find(UUID companyId) {

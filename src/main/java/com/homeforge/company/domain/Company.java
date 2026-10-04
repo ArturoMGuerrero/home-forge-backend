@@ -5,6 +5,7 @@ import com.homeforge.shared.audit.AuditableEntity;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 @Entity @Table(name = "companies")
@@ -39,6 +40,9 @@ public class Company extends AuditableEntity {
     @Column(name="stripe_customer_id", length=100) private String stripeCustomerId;
     @Column(name="stripe_subscription_id", length=100) private String stripeSubscriptionId;
     @Column(nullable=false) private boolean cancelAtPeriodEnd = false;
+    @Column(nullable=false) private LocalTime businessHoursStart = LocalTime.of(9, 0);
+    @Column(nullable=false) private LocalTime businessHoursEnd = LocalTime.of(19, 0);
+    @Column(nullable=false) private int appointmentSlotMinutes = 30;
     protected Company() {}
     public Company(String name, String countryCode, String stateCode, String defaultCurrency, String timezone) {
         this.name = name; this.countryCode = countryCode; this.stateCode = stateCode; this.defaultCurrency = defaultCurrency; this.timezone = timezone;
@@ -176,5 +180,22 @@ public class Company extends AuditableEntity {
         this.vision = vision;
         this.professionalLicense = professionalLicense;
         this.yearsExperience = yearsExperience;
+    }
+
+    public LocalTime getBusinessHoursStart() { return businessHoursStart; }
+    public LocalTime getBusinessHoursEnd() { return businessHoursEnd; }
+    public int getAppointmentSlotMinutes() { return appointmentSlotMinutes; }
+
+    /** Horario en que se agendan citas. Debe abrir antes de cerrar; las citas van cada 15, 30 o 60 minutos. */
+    public void updateBusinessHours(LocalTime start, LocalTime end, int slotMinutes) {
+        if (!start.isBefore(end)) {
+            throw new IllegalArgumentException("La hora de apertura debe ser anterior a la de cierre.");
+        }
+        if (slotMinutes != 15 && slotMinutes != 30 && slotMinutes != 60) {
+            throw new IllegalArgumentException("El intervalo de las citas debe ser de 15, 30 o 60 minutos.");
+        }
+        this.businessHoursStart = start;
+        this.businessHoursEnd = end;
+        this.appointmentSlotMinutes = slotMinutes;
     }
 }

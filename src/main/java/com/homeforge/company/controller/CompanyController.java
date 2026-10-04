@@ -1,5 +1,6 @@
 package com.homeforge.company.controller;
 
+import com.homeforge.company.dto.BusinessHours;
 import com.homeforge.company.dto.CompanyProfileRequest;
 import com.homeforge.company.dto.CompanyProfileResponse;
 import com.homeforge.company.service.CompanyService;
@@ -34,6 +35,20 @@ public class CompanyController {
             @Valid @RequestBody CompanyProfileRequest request
     ) {
         return service.update(companyId, request);
+    }
+
+    /** Horario de atención: lo usan los selectores de hora de las citas y el calendario. */
+    @GetMapping("/{companyId}/business-hours")
+    public BusinessHours businessHours(@PathVariable UUID companyId) {
+        return service.businessHours(companyId);
+    }
+
+    @PutMapping("/{companyId}/business-hours")
+    public BusinessHours updateBusinessHours(
+            @PathVariable UUID companyId,
+            @Valid @RequestBody BusinessHours request
+    ) {
+        return service.updateBusinessHours(companyId, request);
     }
 
     @GetMapping("/public/{companyId}")
