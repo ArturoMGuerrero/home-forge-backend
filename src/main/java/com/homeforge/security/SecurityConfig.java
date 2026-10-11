@@ -53,6 +53,8 @@ public class SecurityConfig {
                                 "/api/companies/public/**", "/api/catalogs", "/api/catalogs/**", "/uploads/**",
                                 "/api/share/**").permitAll()
                         // Avisos de los proveedores de pago (servidor a servidor; cada uno valida su firma)
+                        // Solicitudes de información desde el sitio público (con límite por IP y antispam)
+                        .requestMatchers(HttpMethod.POST, "/api/properties/public/*/inquiries").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/webhooks/mercadopago", "/api/webhooks/stripe").permitAll()
                         // Administración de la empresa: solo administradores
                         .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")

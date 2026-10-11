@@ -43,6 +43,18 @@ public class FollowUpAutomationService {
         );
     }
 
+    /** Un prospecto que ya existía volvió a escribir desde el sitio público: el asesor debe responderle. */
+    public void createWebsiteInquiryTask(Lead lead, String propertyTitle) {
+        createFollowUpTask(
+            lead,
+            "Responder solicitud del sitio web",
+            "Volvió a escribir desde el sitio público por: " + propertyTitle,
+            FollowUpTaskType.CALL,
+            0,
+            FollowUpTaskPriority.HIGH
+        );
+    }
+
     public void createPostVisitTask(UUID leadId, UUID companyId) {
         Lead lead = leadRepository.findByIdAndCompanyIdAndDeletedAtIsNull(leadId, companyId).orElse(null);
         if (lead == null) return;

@@ -67,6 +67,8 @@ public class Lead extends AuditableEntity {
     public void setStatus(LeadStatus status){this.status=status;}
     public void setScore(int score){this.score=score; this.scoreUpdatedAt=Instant.now();}
     public void setAssignedTo(String assignedTo){this.assignedTo=assignedTo;}
+    /** Prospecto que llegó por el formulario del sitio público. */
+    public void markFromWebsite(){this.source="WEBSITE";}
     public void update(
             String firstName, String lastName, String email, String phoneE164, String source,
             LeadStatus status, String listingType, BigDecimal budgetMin, BigDecimal budgetMax,

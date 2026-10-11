@@ -44,7 +44,20 @@ public class LeadService {
       r.companyId(), clean(r.firstName()), clean(r.lastName()), clean(r.email()), clean(r.phoneE164()),
       normalizeListingType(r.listingType()), r.budgetMax(), clean(r.currencyCode()), clean(r.city())
     );
+    return registerNew(lead);
+  }
 
+  /**
+   * Prospecto que llega del formulario del sitio público. No se valida la suscripción: aunque esté
+   * vencida, el contacto se guarda para que la inmobiliaria no lo pierda.
+   */
+  public Lead createFromWebsite(Lead lead){
+    lead.markFromWebsite();
+    return registerNew(lead);
+  }
+
+  /** Asigna asesor, guarda, crea la tarea de primer contacto y calcula la puntuación. */
+  private Lead registerNew(Lead lead){
     UUID assignedUserId = assignmentService.assignLead(lead);
     if (assignedUserId != null) {
       lead.setAssignedTo(assignedUserId.toString());
