@@ -9,6 +9,7 @@ import com.homeforge.auth.exception.InvalidCredentialsException;
 import com.homeforge.auth.service.AuthService;
 import com.homeforge.auth.service.LoginAttemptService;
 import com.homeforge.auth.service.LoginAttemptService.Action;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Acceso", description = "Registro de inmobiliaria, inicio de sesión (JWT) y recuperación de contraseña. Con límite de intentos.")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {

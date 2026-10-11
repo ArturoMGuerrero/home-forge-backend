@@ -4,6 +4,7 @@ import com.homeforge.notification.domain.Notification;
 import com.homeforge.notification.domain.NotificationStatus;
 import com.homeforge.notification.dto.CreateNotificationRequest;
 import com.homeforge.notification.service.NotificationService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Tag(name = "Notificaciones", description = "Mensajes a prospectos (correo, WhatsApp), programados o inmediatos.")
 @RestController
 @RequestMapping("/api/notifications")
 public class NotificationController {

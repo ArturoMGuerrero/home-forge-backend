@@ -4,6 +4,7 @@ import com.homeforge.payment.dto.CreateSubscriptionRequest;
 import com.homeforge.payment.dto.PaymentLinkResponse;
 import com.homeforge.payment.dto.PaymentStatusResponse;
 import com.homeforge.payment.service.MercadoPagoService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.UUID;
 
+@Tag(name = "Pagos con Mercado Pago (heredado)", description = "Integración anterior con Mercado Pago; los pagos actuales van por Stripe.")
 @RestController
 @RequestMapping("/api/payments")
 public class PaymentController {

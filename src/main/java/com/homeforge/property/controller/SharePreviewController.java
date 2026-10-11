@@ -4,6 +4,7 @@ import com.homeforge.property.domain.ListingType;
 import com.homeforge.property.dto.PublicProperty;
 import com.homeforge.property.dto.PublicPropertyResponse;
 import com.homeforge.property.service.PublicPropertyService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,7 @@ import static org.springframework.web.util.HtmlUtils.htmlEscape;
  * JavaScript, así que no ven el contenido de la app: nginx les manda aquí cuando piden
  * {@code /propiedades/{id}} y reciben un HTML con las etiquetas Open Graph (título, precio y foto).
  */
+@Tag(name = "Sitio público", description = "Vista previa (Open Graph) para WhatsApp y redes al compartir una propiedad.")
 @RestController
 @RequestMapping("/api/share")
 public class SharePreviewController {

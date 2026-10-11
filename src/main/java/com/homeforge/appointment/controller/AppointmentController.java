@@ -5,6 +5,7 @@ import com.homeforge.appointment.domain.AppointmentStatus;
 import com.homeforge.appointment.dto.AppointmentResponse;
 import com.homeforge.appointment.dto.CreateAppointmentRequest;
 import com.homeforge.appointment.service.AppointmentService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Tag(name = "Citas", description = "Citas y visitas con prospectos; recordatorios automáticos.")
 @RestController
 @RequestMapping("/api/appointments")
 public class AppointmentController {

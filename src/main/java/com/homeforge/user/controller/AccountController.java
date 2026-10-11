@@ -5,6 +5,7 @@ import com.homeforge.security.TokenService;
 import com.homeforge.shared.validation.Validations;
 import com.homeforge.user.domain.User;
 import com.homeforge.user.repository.UserRepository;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /** "Mi cuenta": cada usuario edita sus propios datos; siempre es el usuario de la sesión. */
+@Tag(name = "Mi cuenta", description = "Perfil propio y cambio de contraseña (cierra las otras sesiones).")
 @RestController
 @RequestMapping("/api/account")
 public class AccountController {

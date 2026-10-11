@@ -2,12 +2,14 @@ package com.homeforge.appointment.controller;
 
 import com.homeforge.appointment.domain.AgentAvailability;
 import com.homeforge.appointment.service.AgentAvailabilityService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Disponibilidad de asesores", description = "Horarios semanales en que cada asesor atiende citas.")
 @RestController
 @RequestMapping("/api/agent-availability")
 public class AgentAvailabilityController {

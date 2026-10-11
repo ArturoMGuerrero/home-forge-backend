@@ -12,3 +12,11 @@ server:
 app:
   jwt:
     require-secret: true
+
+# La documentación de la API no se publica en producción (no hace falta exponer el mapa de la API).
+# Para revisarla en un entorno de pruebas: API_DOCS_ENABLED=true.
+springdoc:
+  api-docs:
+    enabled: ${API_DOCS_ENABLED:false}
+  swagger-ui:
+    enabled: ${API_DOCS_ENABLED:false}

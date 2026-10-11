@@ -8,6 +8,7 @@ import com.stripe.model.Invoice;
 import com.stripe.model.StripeObject;
 import com.stripe.model.Subscription;
 import com.stripe.model.checkout.Session;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Avisos de Stripe. Solo se aceptan si la firma corresponde a STRIPE_WEBHOOK_SECRET; el estado de la
  * suscripción se vuelve a consultar en Stripe en lugar de confiar en el contenido del aviso.
  */
+@Tag(name = "Webhooks", description = "Avisos servidor a servidor de los proveedores de pago; cada uno valida su firma.")
 @RestController
 @RequestMapping("/api/webhooks/stripe")
 public class StripeWebhookController {

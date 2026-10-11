@@ -3,6 +3,7 @@ package com.homeforge.document.controller;
 import com.homeforge.document.domain.StoredDocument;
 import com.homeforge.document.dto.DocumentResponse;
 import com.homeforge.document.service.DocumentService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Documentos", description = "Archivos subidos (identificaciones, escrituras, etc.) ligados a prospectos o propiedades.")
 @RestController
 @RequestMapping("/api/documents")
 public class DocumentController {

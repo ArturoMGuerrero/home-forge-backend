@@ -7,6 +7,7 @@ import com.homeforge.property.dto.PublicPropertyResponse;
 import com.homeforge.property.dto.ReorderImagesRequest;
 import com.homeforge.property.service.PropertyService;
 import com.homeforge.property.service.PublicPropertyService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Tag(name = "Propiedades", description = "Inventario de propiedades, fotos y catálogo público.")
 @RestController
 @RequestMapping("/api/properties")
 public class PropertyController {
