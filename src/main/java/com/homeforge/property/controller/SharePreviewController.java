@@ -32,7 +32,7 @@ import static org.springframework.web.util.HtmlUtils.htmlEscape;
  * JavaScript, así que no ven el contenido de la app: nginx les manda aquí cuando piden
  * {@code /propiedades/{id}} y reciben un HTML con las etiquetas Open Graph (título, precio y foto).
  */
-@Tag(name = "Sitio público", description = "Vista previa (Open Graph) para WhatsApp y redes al compartir una propiedad.")
+@Tag(name = "Sitio público", description = "Vista previa (Open Graph) para WhatsApp y redes al compartir una propiedad, y formulario \"Me interesa\".")
 @RestController
 @RequestMapping("/api/share")
 public class SharePreviewController {

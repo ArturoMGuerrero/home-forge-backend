@@ -4,6 +4,7 @@ import com.homeforge.auth.service.LoginAttemptService;
 import com.homeforge.auth.service.LoginAttemptService.Action;
 import com.homeforge.lead.dto.PublicInquiryRequest;
 import com.homeforge.lead.service.PublicInquiryService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 /** Formulario "Me interesa" del sitio público: no requiere sesión y tiene límite de envíos por IP. */
+@Tag(name = "Sitio público", description = "Vista previa (Open Graph) para WhatsApp y redes al compartir una propiedad, y formulario \"Me interesa\".")
 @RestController
 public class PublicInquiryController {
 
