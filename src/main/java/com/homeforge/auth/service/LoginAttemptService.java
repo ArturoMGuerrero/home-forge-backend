@@ -31,7 +31,7 @@ public class LoginAttemptService {
     private static final int MAX_TRACKED_KEYS = 50_000;
 
     public enum Action {
-        LOGIN(10), REGISTER(5), PASSWORD_RESET(5);
+        LOGIN(10), REGISTER(5), PASSWORD_RESET(5), PUBLIC_INQUIRY(5);
 
         final int perMinute;
 
