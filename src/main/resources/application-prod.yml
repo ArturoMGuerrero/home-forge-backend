@@ -1,0 +1,14 @@
+# Perfil de producción (SPRING_PROFILES_ACTIVE=prod, lo activa el Dockerfile).
+spring:
+  jpa:
+    properties:
+      hibernate:
+        format_sql: false
+
+server:
+  # La plataforma de despliegue pone un proxy delante: la IP real del cliente viene en X-Forwarded-For.
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:framework}
+
+app:
+  jwt:
+    require-secret: true

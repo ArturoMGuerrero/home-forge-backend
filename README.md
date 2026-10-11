@@ -34,6 +34,9 @@ Para probar el despliegue completo (PostgreSQL, backend y frontend en `http://lo
 docker compose up --build -d
 ```
 
+La imagen del backend arranca con el perfil `prod`, así que antes define `JWT_SECRET` en `.env`
+(32+ caracteres, por ejemplo con `openssl rand -base64 48`).
+
 Los datos persisten en los volúmenes `homeforge_postgres_data` y `homeforge_uploads_data`.
 `docker compose down` detiene los servicios sin borrar datos; no uses `docker compose down -v`
 salvo que quieras eliminar también la base de datos.
@@ -65,6 +68,32 @@ El plan de la empresa solo cambia cuando Stripe lo confirma por webhook.
 
 Las pruebas de integración levantan su propio PostgreSQL con Testcontainers
 (`TestcontainersConfiguration`), así que Rancher Desktop debe estar corriendo.
+
+En GitHub, cada PR y cada push a `master` corren las pruebas y construyen la imagen Docker
+(`.github/workflows/ci.yml`).
+
+## Producción
+
+El `Dockerfile` genera la imagen del backend. Arranca con el perfil `prod`
+(`application-prod.yml`), que:
+
+- **exige `JWT_SECRET`**: sin ella el backend no arranca. Si cambia, se cierran todas las sesiones;
+- lee la IP real del cliente detrás del proxy de la plataforma (`X-Forwarded-For`), que necesita el bloqueo
+  por intentos fallidos del login;
+- expone solo `GET /actuator/health` (también `/liveness` y `/readiness`), sin detalles, para los chequeos de salud.
+
+Variables mínimas en la plataforma:
+
+| Variable | Ejemplo / nota |
+|---|---|
+| `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | Postgres administrado: `jdbc:postgresql://host:5432/homeforge?sslmode=require` |
+| `JWT_SECRET` | `openssl rand -base64 48`; guárdala en los secretos de la plataforma |
+| `FRONTEND_URL` | `https://homeforge.mx` (redirecciones de pago y enlaces) |
+| `CORS_ALLOWED_ORIGINS` | `https://homeforge.mx` |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Claves **live** y el secreto del webhook creado en el panel de Stripe, apuntando a `https://<api>/api/webhooks/stripe` |
+| `UPLOADS_DIRECTORY` | Volumen persistente (hasta migrar los archivos a almacenamiento en la nube) |
+
+Si la plataforma **no** pone un proxy delante, define `FORWARD_HEADERS_STRATEGY=none`.
 
 ## 🎯 Características Principales
 
@@ -181,6 +210,7 @@ Una vez iniciado, el backend estará disponible en: **http://localhost:8080**
 
 ```bash
 curl http://localhost:8080/actuator/health
+# {"status":"UP"}  (sin detalles; también /actuator/health/liveness y /actuator/health/readiness)
 ```
 
 ## 🗄️ Base de Datos
