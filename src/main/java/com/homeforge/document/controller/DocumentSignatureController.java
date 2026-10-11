@@ -3,6 +3,7 @@ package com.homeforge.document.controller;
 import com.homeforge.document.domain.DocumentSignature;
 import com.homeforge.document.dto.CreateSignatureRequest;
 import com.homeforge.document.service.DocumentSignatureService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Tag(name = "Firmas", description = "Firmantes de un contrato y registro de firmas.")
 @RestController
 @RequestMapping("/api/document-signatures")
 public class DocumentSignatureController {

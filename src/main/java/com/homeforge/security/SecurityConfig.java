@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         // Chequeo de salud para el balanceador / la plataforma de despliegue (sin detalles)
                         .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**").permitAll()
+                        // Documentación de la API (en producción springdoc está apagado y estas rutas no existen)
+                        .requestMatchers(HttpMethod.GET, "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**").permitAll()
                         // Acceso, registro y recuperación de contraseña
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register",
                                 "/api/auth/request-password-reset", "/api/auth/reset-password").permitAll()

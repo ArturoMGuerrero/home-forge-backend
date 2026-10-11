@@ -3,6 +3,7 @@ package com.homeforge.user.controller;
 import com.homeforge.user.dto.CreateTeamRequest;
 import com.homeforge.user.dto.TeamResponse;
 import com.homeforge.user.service.TeamService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Equipos", description = "Equipos de asesores.")
 @RestController
 @RequestMapping("/api/teams")
 public class TeamController {

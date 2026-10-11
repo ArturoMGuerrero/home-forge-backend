@@ -2,6 +2,7 @@ package com.homeforge.user.controller;
 
 import com.homeforge.user.dto.UserActivityResponse;
 import com.homeforge.user.repository.UserActivityRepository;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Tag(name = "Actividad de usuarios", description = "Registro de actividad de los usuarios de la empresa.")
 @RestController
 @RequestMapping("/api/user-activity")
 public class UserActivityController {

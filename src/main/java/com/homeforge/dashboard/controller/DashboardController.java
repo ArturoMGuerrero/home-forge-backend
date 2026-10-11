@@ -2,12 +2,14 @@ package com.homeforge.dashboard.controller;
 
 import com.homeforge.dashboard.dto.DashboardMetricsResponse;
 import com.homeforge.dashboard.service.DashboardService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
+@Tag(name = "Dashboard", description = "Métricas del tablero principal.")
 @RestController
 @RequestMapping("/api/dashboard")
 public class DashboardController {

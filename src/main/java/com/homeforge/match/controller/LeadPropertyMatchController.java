@@ -3,6 +3,7 @@ package com.homeforge.match.controller;
 import com.homeforge.match.dto.MatchRequest;
 import com.homeforge.match.dto.MatchResponse;
 import com.homeforge.match.service.LeadPropertyMatchService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Coincidencias", description = "Propiedades que coinciden con lo que busca cada prospecto.")
 @RestController
 @RequestMapping("/api/property-matches")
 public class LeadPropertyMatchController {

@@ -1,4 +1,5 @@
 package com.homeforge.lead.controller;
+
 import com.homeforge.lead.domain.Lead;
 import com.homeforge.lead.dto.ChangeLeadStatusRequest;
 import com.homeforge.lead.dto.CreateLeadRequest;
@@ -6,9 +7,11 @@ import com.homeforge.lead.dto.CreateLeadActivityRequest;
 import com.homeforge.lead.dto.UpdateLeadRequest;
 import com.homeforge.lead.domain.LeadActivity;
 import com.homeforge.lead.service.LeadService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
+@Tag(name = "Prospectos", description = "Prospectos (leads) del CRM, su estado y su historial de actividades.")
 @RestController @RequestMapping("/api/leads")
 public class LeadController {
   private final LeadService service;

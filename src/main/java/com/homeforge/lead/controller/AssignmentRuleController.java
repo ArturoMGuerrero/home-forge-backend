@@ -4,12 +4,14 @@ import com.homeforge.lead.domain.LeadAssignmentRule;
 import com.homeforge.lead.dto.CreateAssignmentRuleRequest;
 import com.homeforge.lead.dto.UpdateAssignmentRuleRequest;
 import com.homeforge.lead.service.AssignmentRuleService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Asignación automática", description = "Reglas para repartir prospectos nuevos entre asesores.")
 @RestController
 @RequestMapping("/api/assignment-rules")
 public class AssignmentRuleController {

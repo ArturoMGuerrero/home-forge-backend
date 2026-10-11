@@ -4,12 +4,14 @@ import com.homeforge.lead.domain.FollowUpTask;
 import com.homeforge.lead.dto.CreateFollowUpTaskRequest;
 import com.homeforge.lead.dto.UpdateFollowUpTaskRequest;
 import com.homeforge.lead.service.FollowUpTaskService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Seguimientos", description = "Tareas de seguimiento de prospectos (manuales y automáticas).")
 @RestController
 @RequestMapping("/api/follow-up-tasks")
 public class FollowUpTaskController {

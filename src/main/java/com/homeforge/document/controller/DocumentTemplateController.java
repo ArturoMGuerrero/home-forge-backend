@@ -4,6 +4,7 @@ import com.homeforge.document.domain.DocumentTemplate;
 import com.homeforge.document.domain.DocumentType;
 import com.homeforge.document.dto.CreateTemplateRequest;
 import com.homeforge.document.service.DocumentTemplateService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Tag(name = "Plantillas de contrato", description = "Plantillas con variables para generar contratos.")
 @RestController
 @RequestMapping("/api/document-templates")
 public class DocumentTemplateController {

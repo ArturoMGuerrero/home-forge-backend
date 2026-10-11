@@ -4,6 +4,7 @@ import com.homeforge.company.dto.BusinessHours;
 import com.homeforge.company.dto.CompanyProfileRequest;
 import com.homeforge.company.dto.CompanyProfileResponse;
 import com.homeforge.company.service.CompanyService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+@Tag(name = "Empresa", description = "Perfil de la inmobiliaria, perfil público y horario de atención.")
 @RestController
 @RequestMapping("/api/companies")
 public class CompanyController {

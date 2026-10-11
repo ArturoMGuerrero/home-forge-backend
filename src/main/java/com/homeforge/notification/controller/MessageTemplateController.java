@@ -5,6 +5,7 @@ import com.homeforge.notification.domain.MessageTemplateCategory;
 import com.homeforge.notification.domain.NotificationType;
 import com.homeforge.notification.dto.CreateTemplateRequest;
 import com.homeforge.notification.service.MessageTemplateService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Tag(name = "Plantillas de mensajes", description = "Plantillas de correo y WhatsApp para comunicarse con prospectos.")
 @RestController
 @RequestMapping("/api/message-templates")
 public class MessageTemplateController {

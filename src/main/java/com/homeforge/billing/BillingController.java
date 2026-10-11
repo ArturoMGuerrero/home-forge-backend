@@ -5,6 +5,7 @@ import com.homeforge.company.domain.Company;
 import com.homeforge.company.repository.CompanyRepository;
 import com.homeforge.security.CurrentUser;
 import com.homeforge.subscription.PlanCode;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.security.access.AccessDeniedException;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 /** Contratación y administración de la suscripción de la empresa del usuario (solo administradores). */
+@Tag(name = "Suscripción con Stripe", description = "Contratar un plan (Checkout), portal del cliente y cambio de plan durante la prueba. Solo administradores.")
 @RestController
 @RequestMapping("/api/billing")
 public class BillingController {

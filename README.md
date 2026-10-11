@@ -95,360 +95,113 @@ Variables mínimas en la plataforma:
 
 Si la plataforma **no** pone un proxy delante, define `FORWARD_HEADERS_STRATEGY=none`.
 
-## 🎯 Características Principales
+## Documentación de la API (Swagger)
 
-- **CRM Completo**: Gestión de leads con scoring automático, pipeline Kanban, actividades y seguimiento
-- **Automatización**: Tareas automáticas, asignación inteligente de leads, recordatorios
-- **Documentos**: Generación de contratos con plantillas, firma electrónica
-- **Notificaciones**: Email, WhatsApp, Push, SMS con plantillas personalizables
-- **Calendario**: Gestión de citas, disponibilidad de agentes, recordatorios automáticos
-- **Multi-tenant**: Soporte para múltiples empresas en una sola instancia
-- **Suscripciones**: Sistema integrado con MercadoPago para pagos recurrentes
-- **API RESTful**: Endpoints bien documentados y organizados
+Con el backend corriendo en local, abre **http://localhost:8080/swagger-ui.html**. Ahí están todos los endpoints
+agrupados por tema (Prospectos, Propiedades, Citas…), con sus campos, validaciones y ejemplos, y se pueden probar:
 
-## 🚀 Tecnologías
+1. Ejecuta `POST /api/auth/login` con tu correo y contraseña de desarrollo y copia el `token` de la respuesta.
+2. Pulsa **Authorize** y pégalo. Desde ese momento las rutas privadas usan tu sesión.
 
-- **Framework**: Spring Boot 4.1.1
-- **Lenguaje**: Java 21
-- **Base de datos**: PostgreSQL 16
-- **ORM**: Spring Data JPA + Hibernate
-- **Migraciones**: Flyway
-- **Build**: Maven (wrapper `mvnw`)
-- **Pruebas**: JUnit 5 + Testcontainers
-- **Pagos**: MercadoPago SDK
+El JSON OpenAPI está en `/v3/api-docs` (sirve para generar clientes o importarlo en Postman/Insomnia).
+En producción la documentación está apagada; para revisarla en un entorno de pruebas usa `API_DOCS_ENABLED=true`.
 
-## 📡 API Endpoints
+Reglas generales de la API:
 
-Una vez iniciado, el backend estará disponible en: **http://localhost:8080**
+- **Autenticación:** JWT de 8 horas en `Authorization: Bearer <token>`. Cambiar la contraseña invalida los tokens anteriores.
+- **Aislamiento por empresa:** cada usuario solo ve datos de su inmobiliaria. La empresa sale siempre del token; si una ruta
+  recibe `companyId` (en la ruta, en la consulta o en el cuerpo) y no coincide, responde **403**.
+- **Rutas públicas** (sin token): catálogo y detalle de propiedades, perfil público de empresas, catálogos, formulario
+  "Me interesa", vista previa para compartir, webhooks y `/actuator/health`.
+- **Errores:** cuerpo `{"error": "mensaje en español"}`. 400 validación · 401 sin sesión o token inválido · 403 sin permiso ·
+  402 suscripción vencida · 429 demasiados intentos (con `Retry-After`).
 
-### Principales endpoints:
+## Arquitectura en breve
 
-#### Propiedades
-- `GET /api/properties` - Listar propiedades
-- `POST /api/properties` - Crear propiedad
+Un paquete por módulo de negocio, cada uno con `controller`, `service`, `repository`, `domain` (entidades) y `dto`:
 
-#### Prospectos (Leads)
-- `GET /api/leads` - Listar prospectos
-- `POST /api/leads` - Crear prospecto
-- `PATCH /api/leads/{id}/status` - Cambiar estado (trigger de automatización)
-- `GET /api/leads/{id}/activities` - Ver actividades de un prospecto
-- `POST /api/leads/{id}/calculate-score` - Calcular score del lead
+| Paquete | Qué hace |
+|---|---|
+| `auth` | Registro de inmobiliaria, login, recuperación de contraseña, límite de intentos |
+| `security` | JWT, usuario de la petición (`CurrentUser`), aislamiento por empresa (`TenantGuard`, `@TenantId`), rutas públicas |
+| `company` | Perfil de la empresa, perfil público y horario de atención |
+| `user` | Usuarios, roles (ADMIN / AGENT), equipos, Mi cuenta |
+| `property` | Propiedades, fotos, catálogo público y vista previa para compartir |
+| `lead` | Prospectos, historial, seguimientos automáticos, asignación automática, puntuación, formulario del sitio |
+| `match` | Coincidencias entre lo que busca un prospecto y las propiedades |
+| `appointment` | Citas, disponibilidad de asesores y recordatorios |
+| `document` | Archivos subidos, plantillas de contrato, contratos generados y firmas |
+| `notification` | Plantillas y envío de mensajes a prospectos (correo, WhatsApp) |
+| `billing` | Suscripciones con Stripe (Checkout, portal, webhook idempotente) |
+| `subscription` | Plan y estado de la suscripción; vencimiento de pruebas y suscripciones |
+| `payment` | Integración anterior con Mercado Pago (su webhook está apagado) |
+| `catalog`, `dashboard`, `shared` | Catálogos, métricas del tablero y utilidades comunes |
 
-#### Pipeline de Ventas
-- `GET /api/leads?status=QUALIFIED` - Filtrar por estado (Kanban)
-- `PATCH /api/leads/{id}/status` - Mover entre columnas del pipeline
+**Aislamiento por empresa:** las entidades con `@TenantId` se filtran automáticamente por la empresa del token
+(`TenantIdentifierResolver`). Sin usuario (sitio público, login, tareas programadas) la sesión es "root" y no se filtra; esos
+flujos restringen sus consultas por sí mismos. `TenantGuard` además rechaza peticiones cuyo `companyId` no sea el del token.
 
-#### Tareas de Seguimiento
-- `GET /api/follow-up-tasks` - Listar tareas
-- `GET /api/follow-up-tasks/lead/{leadId}` - Tareas de un prospecto
-- `GET /api/follow-up-tasks/overdue` - Tareas vencidas
-- `POST /api/follow-up-tasks` - Crear tarea manual
-- `PATCH /api/follow-up-tasks/{id}` - Actualizar tarea
+### Tareas programadas
 
-#### Scoring de Leads
-- `POST /api/leads/{id}/calculate-score` - Recalcular score
-- `GET /api/leads/{id}/score-history` - Historial de cambios de score
+| Tarea | Cuándo |
+|---|---|
+| Recordatorios de citas (`AppointmentReminderService`) | Cada 5 minutos |
+| Seguimientos automáticos: tareas vencidas y prospectos sin respuesta (`FollowUpAutomationService`) | Cada hora |
+| Recalcular la puntuación de prospectos (`LeadScoringService`) | Diario, 2:00 |
+| Marcar suscripciones vencidas / pruebas vencidas (`SubscriptionExpirationScheduler`) | Diario, 2:00 y 3:00 |
 
-#### Asignación Automática
-- `GET /api/assignment-rules` - Listar reglas de asignación
-- `POST /api/assignment-rules` - Crear regla
-- `PATCH /api/assignment-rules/{id}` - Actualizar regla
+## Planes y suscripciones
 
-#### Documentos y Contratos
-- `GET /api/document-templates` - Listar plantillas
-- `POST /api/document-templates` - Crear plantilla
-- `GET /api/documents` - Listar documentos generados
-- `POST /api/documents` - Generar documento desde plantilla
-- `POST /api/documents/{id}/send-for-signature` - Enviar para firma
-- `GET /api/document-signatures/document/{id}` - Firmas de un documento
-- `POST /api/document-signatures/{id}/sign` - Firmar documento
+Los cobros van por **Stripe** (ver "Pagos con Stripe" arriba). Los productos y precios se crean solos en Stripe.
 
-#### Notificaciones y Comunicación
-- `GET /api/notifications` - Listar notificaciones
-- `POST /api/notifications` - Crear notificación
-- `POST /api/notifications/{id}/send` - Enviar notificación manualmente
-- `PATCH /api/notifications/{id}/status` - Actualizar estado
-- `GET /api/message-templates` - Listar plantillas de mensajes
-- `POST /api/message-templates` - Crear plantilla
-- `GET /api/message-templates/by-type` - Filtrar por tipo
-- `PATCH /api/message-templates/{id}/toggle-active` - Activar/desactivar plantilla
+| Plan | Precio (MXN/mes, `PLAN_*_PRICE`) | Usuarios |
+|---|---|---|
+| Starter | $299 | 2 |
+| Pro | $999 | 10 |
+| Business | $3,999 | 50 |
 
-#### Calendario y Citas
-- `GET /api/appointments` - Listar citas (con filtros por fecha, usuario, lead)
-- `POST /api/appointments` - Crear cita
-- `GET /api/appointments/{id}` - Obtener cita
-- `PUT /api/appointments/{id}` - Actualizar cita
-- `DELETE /api/appointments/{id}` - Eliminar cita (soft delete)
-- `PATCH /api/appointments/{id}/status` - Cambiar estado
-- `POST /api/appointments/{id}/reminder-sent` - Marcar recordatorio enviado
-- `POST /api/appointments/{id}/sync-google` - Sincronizar con Google Calendar
+- Toda empresa nueva empieza con **14 días de prueba**. Si contrata durante la prueba, el primer cobro llega al terminarla,
+  y los cambios de plan en ese periodo no cobran nada.
+- Fuera de la prueba, los cambios de plan se hacen en el portal de Stripe con cobro proporcional.
+- El plan de la empresa solo cambia cuando Stripe lo confirma por webhook.
+- **Límites:** el backend valida el número de usuarios por plan. Los límites de propiedades y prospectos que muestran las
+  tarjetas de planes en la app **todavía no se validan**.
 
-#### Disponibilidad de Agentes
-- `GET /api/agent-availability` - Listar disponibilidad (por usuario/día)
-- `POST /api/agent-availability` - Crear horario disponible
-- `PUT /api/agent-availability/{id}` - Actualizar disponibilidad
-- `DELETE /api/agent-availability/{id}` - Eliminar disponibilidad
+## Base de datos
 
-#### Empresas
-- `GET /api/companies` - Listar empresas
-- `GET /api/companies/{id}` - Obtener empresa por ID
+PostgreSQL 16. Flyway aplica al arrancar las migraciones de `src/main/resources/db/migration/` (`V1` … `Vn`).
+Hibernate solo **valida** el esquema (`ddl-auto: validate`): todo cambio de tablas va en una migración nueva; nunca se edita
+una migración ya aplicada.
 
-#### Suscripciones
-- `GET /api/subscriptions` - Listar planes de suscripción
-- `POST /api/subscriptions/subscribe` - Crear suscripción
-- `PUT /api/subscriptions/{id}/renew` - Renovar suscripción
+## Pruebas y build
 
-#### Pagos (MercadoPago)
-- `POST /api/payments/create-preference` - Crear preferencia de pago
-- `POST /api/payments/webhook` - Webhook de notificaciones
-- `GET /api/payments/status/{paymentId}` - Consultar estado de pago
-
-#### Dashboard
-- `GET /api/dashboard/metrics` - Métricas generales del sistema
-
-### Health Check
-
-```bash
-curl http://localhost:8080/actuator/health
-# {"status":"UP"}  (sin detalles; también /actuator/health/liveness y /actuator/health/readiness)
+```powershell
+./mvnw test                    # pruebas (Testcontainers levanta su propio Postgres)
+./mvnw verify                  # pruebas + reporte de cobertura en target/site/jacoco/index.html
+./mvnw package -DskipTests     # genera target/homeforge-backend-0.1.0.jar
 ```
 
-## 🗄️ Base de Datos
+## Variables de entorno
 
-### Migraciones
+Ver `.env.example` (desarrollo) y la tabla de la sección **Producción**. Las principales:
 
-Las migraciones se ejecutan automáticamente con Flyway al iniciar la aplicación.
+| Variable | Para qué |
+|---|---|
+| `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | Conexión a PostgreSQL |
+| `JWT_SECRET` | Firma de las sesiones (obligatoria en producción) |
+| `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS` | URL de la app y orígenes permitidos |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Cobros con Stripe |
+| `PLAN_STARTER_PRICE`, `PLAN_PRO_PRICE`, `PLAN_BUSINESS_PRICE` | Precios de los planes (MXN) |
+| `UPLOADS_DIRECTORY` | Carpeta de archivos subidos |
+| `SERVER_PORT` | Puerto (8080 por defecto) |
+| `FORWARD_HEADERS_STRATEGY` | `framework` detrás de un proxy, `none` en local |
+| `API_DOCS_ENABLED` | Publicar Swagger en producción (apagado por defecto) |
 
-Ubicación:
-- PostgreSQL: `src/main/resources/db/migration/`
-- H2: `src/main/resources/db/migration/h2/`
-- SQL Server: `src/main/resources/db/migration/sqlserver/`
+## Frontend
 
-### Tablas principales
+Repositorio `home-forge-frontend` (React + Vite). En desarrollo corre en http://localhost:5174 y llama a esta API en el
+puerto 8080; en producción su nginx sirve la app y reenvía `/api` y `/uploads` a este backend en el mismo dominio.
 
-- `companies` - Empresas (multi-tenant)
-- `users` - Usuarios del sistema
-- `properties` - Inventario de propiedades
-- `leads` - Prospectos/clientes potenciales (con scoring)
-- `lead_activities` - Seguimiento extendido de actividades
-- `lead_score_history` - Historial de cambios de score
-- `follow_up_tasks` - Tareas automatizadas de seguimiento
-- `lead_assignment_rules` - Reglas de asignación automática de leads
-- `developments` - Desarrollos inmobiliarios
-- `tasks` - Tareas y seguimiento
-- `documents` - Archivos adjuntos
-- `document_templates` - Plantillas de contratos reutilizables
-- `documents` - Documentos generados (contratos, acuerdos)
-- `document_signatures` - Firmas electrónicas de documentos
-- `message_templates` - Plantillas de mensajes para notificaciones
-- `notifications` - Notificaciones enviadas (Email, WhatsApp, Push, SMS)
-- `communication_channels` - Configuración de canales de comunicación
-- `push_subscriptions` - Suscripciones a notificaciones push
-- `notification_preferences` - Preferencias de notificaciones por usuario
-- `appointments` - Citas y eventos del calendario
-- `agent_availability` - Disponibilidad de agentes por día/hora
-- `calendar_blocks` - Bloqueos de calendario
-- `appointment_reminders` - Recordatorios de citas
-- `subscription_plans` - Planes de suscripción (Trial, Básico, Profesional, Empresarial)
-- `subscriptions` - Suscripciones activas de empresas
-- `payments` - Registro de pagos procesados
-- `property_lead_match` - Matching entre propiedades y prospectos
+## Licencia
 
-## 🧪 Tests
-
-```bash
-# Ejecutar todos los tests
-mvnw test
-
-# Ejecutar tests con reporte de cobertura
-mvnw test jacoco:report
-```
-
-Reporte de cobertura: `target/site/jacoco/index.html`
-
-## 📦 Build
-
-### Crear JAR ejecutable
-
-```bash
-mvnw clean package -DskipTests
-```
-
-El JAR se generará en: `target/homeforge-backend-0.1.0.jar`
-
-### Ejecutar JAR
-
-```bash
-java -jar target/homeforge-backend-0.1.0.jar
-```
-
-## 🔐 Autenticación
-
-El sistema incluye autenticación básica con:
-
-- Registro de usuarios
-- Login con email y password
-- Hashing de contraseñas con BCrypt
-- Multi-tenant por `company_id`
-
-## 💳 Sistema de Suscripciones y Pagos
-
-### Planes Disponibles
-
-1. **Trial (Prueba)** - 14 días gratis
-   - 10 propiedades máximo
-   - 20 prospectos máximo
-   - Funcionalidades básicas
-
-2. **Básico** - $299 MXN/mes
-   - 50 propiedades
-   - 100 prospectos
-   - Soporte por email
-
-3. **Profesional** - $599 MXN/mes
-   - 200 propiedades
-   - 500 prospectos
-   - Soporte prioritario
-   - Reportes avanzados
-
-4. **Empresarial** - $999 MXN/mes
-   - Propiedades ilimitadas
-   - Prospectos ilimitados
-   - Soporte 24/7
-   - API access
-   - Dashboard personalizado
-
-### Integración con MercadoPago
-
-- Pagos procesados mediante MercadoPago SDK
-- Webhooks para actualización automática de suscripciones
-- Soporte para pagos recurrentes
-- Validación automática de límites según plan
-
-### Renovación Automática
-
-El sistema incluye un scheduler que:
-- Verifica suscripciones próximas a vencer
-- Envía notificaciones de renovación
-- Marca como expiradas las suscripciones vencidas
-- Se ejecuta diariamente a las 00:00
-
-## 🌍 CORS
-
-Configurado en `.env` con la variable `CORS_ALLOWED_ORIGINS`.
-
-Por defecto permite:
-- http://localhost:5174
-- http://127.0.0.1:5174
-
-Agrega más orígenes separados por coma si es necesario.
-
-## 📁 Estructura del Proyecto
-
-```
-HomeForge-backend/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/homeforge/
-│   │   │       ├── controller/    # REST Controllers
-│   │   │       ├── service/       # Lógica de negocio
-│   │   │       ├── repository/    # JPA Repositories
-│   │   │       ├── model/         # Entidades JPA
-│   │   │       ├── dto/           # Data Transfer Objects
-│   │   │       └── config/        # Configuración
-│   │   └── resources/
-│   │       ├── application.yml
-│   │       ├── application-h2.yml
-│   │       ├── application-sqlserver.yml
-│   │       └── db/migration/      # Migraciones Flyway
-│   └── test/                      # Tests
-├── pom.xml                        # Dependencias Maven
-├── .env                           # Variables de entorno
-└── README.md
-```
-
-## 🛠️ Comandos Útiles
-
-```bash
-# Limpiar proyecto
-mvnw clean
-
-# Compilar sin tests
-mvnw clean install -DskipTests
-
-# Ver dependencias
-mvnw dependency:tree
-
-# Actualizar wrapper de Maven
-mvnw wrapper:wrapper
-
-# Ejecutar con perfil específico
-mvnw spring-boot:run -Dspring-boot.run.profiles=h2
-```
-
-## 🔧 Configuración Avanzada
-
-### Cambiar puerto
-
-Edita `.env`:
-```bash
-SERVER_PORT=8081
-```
-
-### Variables de entorno disponibles
-
-- `SERVER_PORT` - Puerto del servidor (default: 8080)
-- `CORS_ALLOWED_ORIGINS` - Orígenes CORS permitidos
-- `UPLOADS_DIRECTORY` - Directorio para archivos subidos
-- `DB_URL` - URL de base de datos (para PostgreSQL)
-- `DB_USERNAME` - Usuario de BD (para PostgreSQL/SQL Server)
-- `DB_PASSWORD` - Contraseña de BD (para PostgreSQL/SQL Server)
-- `MERCADOPAGO_ACCESS_TOKEN` - Access Token de MercadoPago (prueba o producción)
-- `MERCADOPAGO_PUBLIC_KEY` - Public Key de MercadoPago
-
-## 🐳 Docker (Opcional)
-
-Para PostgreSQL local:
-
-```bash
-# Iniciar
-docker-compose up -d
-
-# Detener
-docker-compose down
-
-# Ver logs
-docker-compose logs -f
-```
-
-## 📚 Documentación Adicional
-
-- [Configuración SQL Server](../HomeForge/SQL_SERVER_SETUP.md)
-- [Comandos Rápidos](../HomeForge/COMANDOS_RAPIDOS.md)
-- [Cambios Realizados](../HomeForge/CAMBIOS_REALIZADOS.md)
-
-## 🤝 Frontend
-
-Este backend está diseñado para trabajar con el frontend de HomeForge:
-
-- Repositorio Frontend: `HomeForge-frontend`
-- URL por defecto: http://localhost:5174
-
-Asegúrate de configurar `CORS_ALLOWED_ORIGINS` con la URL del frontend.
-
-## 📝 Licencia
-
-Proyecto privado - Todos los derechos reservados
-
-## 🆘 Soporte
-
-Para problemas o preguntas:
-
-1. Revisa la documentación
-2. Verifica los logs en consola
-3. Consulta los archivos de configuración
-
----
-
-**Desarrollado con ☕ y Spring Boot**
+Proyecto privado. Todos los derechos reservados.

@@ -1,5 +1,6 @@
 package com.homeforge.payment.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import com.homeforge.payment.service.MercadoPagoService;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import java.util.Map;
 // Apagado por defecto: es público y no valida la firma de Mercado Pago. Se reemplazará al integrar
 // Mercado Pago como BillingProvider (con validación de firma), igual que Stripe.
 @ConditionalOnProperty(name = "mercadopago.webhook.enabled", havingValue = "true")
+@Tag(name = "Webhooks", description = "Avisos servidor a servidor de los proveedores de pago; cada uno valida su firma.")
 @RestController
 @RequestMapping("/api/webhooks/mercadopago")
 public class MercadoPagoWebhookController {

@@ -5,6 +5,7 @@ import com.homeforge.document.domain.DocumentStatus;
 import com.homeforge.document.dto.CreateDocumentRequest;
 import com.homeforge.document.service.DocumentGenerationService;
 import com.homeforge.security.CurrentUser;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ import java.util.UUID;
  * Contratos y documentos generados a partir de plantillas. (Los archivos que se suben, como
  * identificaciones o escrituras, viven aparte en /api/documents.)
  */
+@Tag(name = "Contratos", description = "Contratos generados a partir de plantillas, su estado y el envío a firma.")
 @RestController
 @RequestMapping("/api/contracts")
 public class ContractController {

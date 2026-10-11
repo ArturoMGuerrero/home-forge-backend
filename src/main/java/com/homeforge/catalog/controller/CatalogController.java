@@ -2,6 +2,7 @@ package com.homeforge.catalog.controller;
 
 import com.homeforge.catalog.dto.CatalogItem;
 import com.homeforge.catalog.service.CatalogService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
+@Tag(name = "Catálogos", description = "Listas de opciones (tipos de propiedad, orígenes de prospecto, etc.). Públicas.")
 @RestController
 @RequestMapping("/api/catalogs")
 public class CatalogController {
